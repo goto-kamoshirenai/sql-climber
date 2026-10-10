@@ -1,0 +1,21 @@
+{
+  "id": "0036",
+  "title": "山小屋に番号を",
+  "grade": 3776,
+  "altitude": 3200,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "山小屋を `huts.altitude` の高い順に並べ、1 から始まる通し番号を付けてください。\n\n- 列：番号、`name`、`altitude`\n- 並び順：番号の小さい順\n- 補足：標高が同じ小屋はありません。ウィンドウ関数の練習です",
+  "hints": [
+    "並べ替えた順に 1, 2, 3, … と番号を振る関数があります。行をまとめずに、各行へ番号を付け足すだけです。",
+    "`ROW_NUMBER() OVER (ORDER BY 列 DESC)` と書くと、その並びでの通し番号になります。結果全体の並び順は、別に `ORDER BY` で指定します。",
+    "`SELECT ROW_NUMBER() OVER (ORDER BY ___) AS num, name, altitude FROM huts ORDER BY ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT ROW_NUMBER() OVER (ORDER BY altitude DESC) AS num, name, altitude FROM huts ORDER BY num;",
+    "explanation": "```sql\nSELECT ROW_NUMBER() OVER (ORDER BY altitude DESC) AS num,\n       name,\n       altitude\nFROM huts\nORDER BY num;\n```\n\n- `ROW_NUMBER()` … 1 から始まる通し番号を返す\n- `OVER (ORDER BY altitude DESC)` … どの順番で番号を振るかを決める。ここでは標高の高い順\n- 最後の `ORDER BY num` … 結果の並び順。`OVER` の中の `ORDER BY` とは別物\n\n`ROW_NUMBER` のような関数をウィンドウ関数と呼びます。`GROUP BY` と違って行をまとめず、元の行を残したまま、各行に「全体の中での位置」を付け足します。\n\n`OVER` の中の `ORDER BY` は「番号の振り方」を、外側の `ORDER BY` は「表示の順」を決めます。外側を省くと、番号は正しくても行の並びが保証されません。\n\n番号の列名は `rank` のような語を避けて `num` としました。SQL の中で意味を持つ語と紛らわしい名前は、避けておくのが無難です。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

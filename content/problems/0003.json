@@ -1,0 +1,21 @@
+{
+  "id": "0003",
+  "title": "どの地方の山があるか",
+  "grade": 500,
+  "altitude": 120,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルの `area` を、重複なしで取り出してください。\n\n- 列：`area`\n- 並び順：問わない",
+  "hints": [
+    "ただ `area` を取り出すと、山の数だけ行が出て、同じ地方が何度も並びます。重複を取り除く必要があります。",
+    "`SELECT` の直後に `DISTINCT` を書くと、まったく同じ行がひとつにまとめられます。",
+    "`SELECT DISTINCT 列名 FROM テーブル名;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT DISTINCT area FROM mountains;",
+    "explanation": "```sql\nSELECT DISTINCT area FROM mountains;\n```\n\n- `SELECT DISTINCT area` … 地方の列を取り出し、重複する行を1つにまとめる\n- `FROM mountains` … `mountains` テーブルから\n\n20 座の山があっても、地方は5つに絞られます。\n\n`DISTINCT` は「列ごと」ではなく「行ごと」に重複を判定します。`SELECT DISTINCT area, prefecture` と書けば、地方と都道府県の組み合わせが同じ行だけがまとめられる点に気をつけてください。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

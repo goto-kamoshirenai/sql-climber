@@ -1,0 +1,21 @@
+{
+  "id": "0037",
+  "title": "それぞれの初登山",
+  "grade": 3776,
+  "altitude": 3350,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "登山者ごとに、`climbed_on` が最も古い登山記録を1件ずつ取り出してください。\n\n- 列：`climbers.name`、`climb_records.climbed_on`、`routes.name`\n- 並び順：`climbed_on` の古い順。同じ日は `climbers.id` の小さい順\n- 補足：登山記録のない登山者は含めない。同じ登山者が同じ日に複数の記録を持つことはありません。`ROW_NUMBER` と `PARTITION BY` の練習です",
+  "hints": [
+    "登山者ごとに、記録を登山日の古い順に 1, 2, 3, … と番号付けします。番号が 1 の記録が、その人の初登山です。",
+    "`ROW_NUMBER() OVER (PARTITION BY climber_id ORDER BY climbed_on)` で、登山者ごとに番号を振り直せます。ウィンドウ関数の結果は `WHERE` で直接使えないので、`FROM` 句のサブクエリに入れてから絞ります。",
+    "`SELECT c.name, t.climbed_on, r.name FROM (SELECT climber_id, route_id, climbed_on, ROW_NUMBER() OVER (PARTITION BY ___ ORDER BY ___) AS rn FROM climb_records) AS t INNER JOIN climbers AS c ON ___ INNER JOIN routes AS r ON ___ WHERE ___ ORDER BY ___, ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT c.name, t.climbed_on, r.name FROM (SELECT climber_id, route_id, climbed_on, ROW_NUMBER() OVER (PARTITION BY climber_id ORDER BY climbed_on) AS rn FROM climb_records) AS t INNER JOIN climbers AS c ON c.id = t.climber_id INNER JOIN routes AS r ON r.id = t.route_id WHERE t.rn = 1 ORDER BY t.climbed_on, c.id;",
+    "explanation": "```sql\nSELECT c.name, t.climbed_on, r.name\nFROM (\n  SELECT climber_id, route_id, climbed_on,\n         ROW_NUMBER() OVER (PARTITION BY climber_id ORDER BY climbed_on) AS rn\n  FROM climb_records\n) AS t\nINNER JOIN climbers AS c ON c.id = t.climber_id\nINNER JOIN routes AS r ON r.id = t.route_id\nWHERE t.rn = 1\nORDER BY t.climbed_on, c.id;\n```\n\n- `PARTITION BY climber_id` … 登山者ごとに区切り、区切りごとに番号を 1 から振り直す\n- `ORDER BY climbed_on` … 区切りの中では登山日の古い順に番号を振る\n- 外側の `WHERE t.rn = 1` … 各登山者の1番目、つまり初登山だけを残す\n- 2本の `INNER JOIN` … 名前とルート名を付ける\n\n`WHERE ROW_NUMBER() OVER (...) = 1` とは書けません。ウィンドウ関数は `WHERE` で行を絞った後に計算されるため、`WHERE` の時点ではまだ番号がないのです。だから一度サブクエリで番号を確定させてから、外側で絞ります。\n\n近藤 蓮さんの初登山は、涸沢ルートで引き返した日の記録です。登頂したかどうかは問うていないので、これで正解です。\n\n別解として、相関サブクエリで「その人の最も古い登山日」と一致する記録を選ぶ方法もあります（`WHERE cr.climbed_on = (SELECT MIN(cr2.climbed_on) FROM climb_records AS cr2 WHERE cr2.climber_id = cr.climber_id)`）。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

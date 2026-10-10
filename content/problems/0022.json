@@ -1,0 +1,21 @@
+{
+  "id": "0022",
+  "title": "北アルプスの山小屋",
+  "grade": 2500,
+  "altitude": 1650,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`mountains.range_name` が `'北アルプス'` の山にある山小屋を取り出してください。\n\n- 列：`mountains.name`、`huts.name`、`huts.price`\n- 並び順：`huts.price` の高い順。同じ料金は `huts.altitude` の高い順",
+  "hints": [
+    "山域は山の表に、料金は小屋の表にあります。まず小屋と山を結び、山域で絞り込んでから並べます。",
+    "`INNER JOIN` で `huts.mountain_id` と `mountains.id` を結び、`WHERE` で山域を絞ります。並べ替えは `ORDER BY 列1 DESC, 列2 DESC` のように2つ書けます。",
+    "`SELECT m.name, h.name, h.price FROM huts AS h INNER JOIN mountains AS m ON ___ WHERE ___ ORDER BY ___ DESC, ___ DESC;`"
+  ],
+  "answer": {
+    "sql": "SELECT m.name, h.name, h.price FROM huts AS h INNER JOIN mountains AS m ON m.id = h.mountain_id WHERE m.range_name = '北アルプス' ORDER BY h.price DESC, h.altitude DESC;",
+    "explanation": "```sql\nSELECT m.name, h.name, h.price\nFROM huts AS h\nINNER JOIN mountains AS m ON m.id = h.mountain_id\nWHERE m.range_name = '北アルプス'\nORDER BY h.price DESC, h.altitude DESC;\n```\n\n- `INNER JOIN ... ON m.id = h.mountain_id` … 小屋ごとに、その小屋が建つ山の情報を横に並べる\n- `WHERE m.range_name = '北アルプス'` … 結んだ後なら、山の表の列でも条件に使える\n- `ORDER BY h.price DESC, h.altitude DESC` … まず料金の高い順、同じ料金どうしは小屋の標高の高い順\n\n12000円の小屋が3軒あるので、2つ目の並べ替えの鍵が効いてきます。\n\n気をつけたいのは `altitude` です。山の表にも小屋の表にも同じ名前の列があり、意味が違います（山頂の標高と小屋の標高）。ここで欲しいのは小屋のほうなので、`h.altitude` と明示します。`m.altitude` と書いてもエラーにはならず、黙って違う並びになるので厄介です。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0040",
+  "title": "富士山頂 山行の総決算",
+  "grade": 3776,
+  "altitude": 3776,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "すべての登山者（登山記録のない人も含む）について、次の値を求めてください。\n\n- 登頂した山の数：`reached_summit` が `1` の記録に出てくる山の種類の数。同じ山は何度登っても、別のルートでも 1 と数える。なければ 0\n- 最高の登頂標高：登頂した山の `mountains.altitude` の最大値。なければ 0\n- 順位：登頂した山の数の多い順。同じ数の人は同じ順位とし、次の順位は飛ばす（`RANK` と同じ数え方）\n\n取り出し方は次のとおりです。\n\n- 列：順位、`climbers.name`、登頂した山の数、最高の登頂標高\n- 並び順：順位の小さい順。同じ順位は `climbers.id` の小さい順",
+  "hints": [
+    "2段に分けます。まず登山者ごとに「登頂した山の数」と「最高の登頂標高」を集計した表を作り（記録のない人も残す）、次にその表に順位を付けます。引き返した記録を外す条件をどこに書くかで、記録のない人が残るかどうかが変わります。",
+    "登山者を左に置いて `LEFT JOIN` を3本（記録・ルート・山）。登頂の条件は `WHERE` ではなく、記録を結ぶ `ON` に `AND` で加えます。種類の数は `COUNT(DISTINCT 列)`、NULL を 0 にするのは `COALESCE`。順位は外側で `RANK() OVER (...)`。",
+    "`SELECT RANK() OVER (ORDER BY ___ DESC) AS rnk, t.name, t.peaks, t.top FROM (SELECT c.id, c.name, COUNT(DISTINCT ___) AS peaks, COALESCE(MAX(___), 0) AS top FROM climbers AS c LEFT JOIN climb_records AS cr ON ___ AND ___ LEFT JOIN routes AS r ON ___ LEFT JOIN mountains AS m ON ___ GROUP BY ___) AS t ORDER BY ___, ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT RANK() OVER (ORDER BY t.peaks DESC) AS rnk, t.name, t.peaks, t.top FROM (SELECT c.id, c.name, COUNT(DISTINCT m.id) AS peaks, COALESCE(MAX(m.altitude), 0) AS top FROM climbers AS c LEFT JOIN climb_records AS cr ON cr.climber_id = c.id AND cr.reached_summit = 1 LEFT JOIN routes AS r ON r.id = cr.route_id LEFT JOIN mountains AS m ON m.id = r.mountain_id GROUP BY c.id, c.name) AS t ORDER BY rnk, t.id;",
+    "explanation": "```sql\nSELECT RANK() OVER (ORDER BY t.peaks DESC) AS rnk,\n       t.name, t.peaks, t.top\nFROM (\n  SELECT c.id, c.name,\n         COUNT(DISTINCT m.id) AS peaks,\n         COALESCE(MAX(m.altitude), 0) AS top\n  FROM climbers AS c\n  LEFT JOIN climb_records AS cr\n         ON cr.climber_id = c.id AND cr.reached_summit = 1\n  LEFT JOIN routes AS r ON r.id = cr.route_id\n  LEFT JOIN mountains AS m ON m.id = r.mountain_id\n  GROUP BY c.id, c.name\n) AS t\nORDER BY rnk, t.id;\n```\n\n内側（登山者ごとの集計）から読みます。\n\n- `FROM climbers AS c LEFT JOIN ...` … 登山者を全員残す。記録のない坂本 光さんも、右側が NULL の1行として残る\n- `ON cr.climber_id = c.id AND cr.reached_summit = 1` … 登頂した記録だけを結ぶ。条件を `ON` に置くのが要\n- `LEFT JOIN routes` / `LEFT JOIN mountains` … 記録から山までたどる。途中で `INNER JOIN` にすると、坂本さんの行がそこで消える\n- `COUNT(DISTINCT m.id)` … 山の種類の数。`COUNT` は NULL を数えないので、坂本さんは 0 になる\n- `COALESCE(MAX(m.altitude), 0)` … 登頂がなければ `MAX` は NULL なので、0 に置き換える\n\n外側では、できあがった1人1行の表に `RANK()` で順位を付け、順位と id で並べます。\n\nこの問題でいちばん踏み外しやすいのは、登頂の条件を `WHERE cr.reached_summit = 1` と書いてしまうことです。`WHERE` は結合の後に効くので、右側が NULL の坂本さんの行は条件を満たさずに消えます。せっかくの `LEFT JOIN` が、黙って `INNER JOIN` と同じ結果になるわけです。外部結合の相手側に付ける条件は `ON` へ。これはどの山でも通じる心得です。\n\nもう1つ、`COUNT(*)` や `COUNT(cr.id)` では「登頂の回数」になります。赤岳に3度登った工藤 大地さんが 3 と数えられてしまうので、ここは `DISTINCT` で山の種類を数えます。\n\n青木 遥さんが4つの山に登頂して 1位、富士山頂まで届いた人は3人。ここまで登ってきた皆さんも、その列に加わったと言ってよいでしょう。お疲れさまでした。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0032",
+  "title": "ルート平均より速く",
+  "grade": 3776,
+  "altitude": 2750,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`duration_min` が、同じルートの全記録の平均より短い登山記録を取り出してください。\n\n- 列：`climbers.name`、`routes.name`、`climb_records.duration_min`\n- 並び順：問わない\n- 補足：平均には途中で引き返した記録も含める",
+  "hints": [
+    "記録1件ずつについて「同じルートの記録の平均」を求め、それより短いかを比べます。比べる相手の平均は記録ごとに変わります。",
+    "相関サブクエリで `AVG(duration_min)` を求めます。サブクエリの中で、外側の記録の `route_id` と同じルートに絞ります。名前を出すために登山者とルートも結びます。",
+    "`SELECT c.name, r.name, cr.duration_min FROM climb_records AS cr INNER JOIN climbers AS c ON ___ INNER JOIN routes AS r ON ___ WHERE cr.duration_min < (SELECT AVG(___) FROM climb_records AS cr2 WHERE ___);`"
+  ],
+  "answer": {
+    "sql": "SELECT c.name, r.name, cr.duration_min FROM climb_records AS cr INNER JOIN climbers AS c ON c.id = cr.climber_id INNER JOIN routes AS r ON r.id = cr.route_id WHERE cr.duration_min < (SELECT AVG(cr2.duration_min) FROM climb_records AS cr2 WHERE cr2.route_id = cr.route_id);",
+    "explanation": "```sql\nSELECT c.name, r.name, cr.duration_min\nFROM climb_records AS cr\nINNER JOIN climbers AS c ON c.id = cr.climber_id\nINNER JOIN routes AS r ON r.id = cr.route_id\nWHERE cr.duration_min < (\n  SELECT AVG(cr2.duration_min)\n  FROM climb_records AS cr2\n  WHERE cr2.route_id = cr.route_id\n);\n```\n\n- 外側 … 記録に登山者名とルート名を付ける\n- 内側 … `cr2.route_id = cr.route_id` で、いま見ている記録と同じルートの記録だけを集め、平均を出す\n- `cr.duration_min < (...)` … その平均より短ければ残す\n\n前の問題の「全ルートの平均」は1つの値でしたが、今回は記録ごとに比べる平均が違います。それが相関サブクエリの出番です。\n\n記録が1件しかないルートは、平均が自分自身の時間と等しくなるので、決して「平均より短い」になりません。御殿場ルートや黒戸尾根ルートが結果に出てこないのはそのためです。\n\n別解として、ルートごとの平均を `FROM` 句のサブクエリで先に作って結ぶ方法もあります。\n\n```sql\nSELECT c.name, r.name, cr.duration_min\nFROM climb_records AS cr\nINNER JOIN (SELECT route_id, AVG(duration_min) AS avg_min\n            FROM climb_records GROUP BY route_id) AS a ON a.route_id = cr.route_id\nINNER JOIN climbers AS c ON c.id = cr.climber_id\nINNER JOIN routes AS r ON r.id = cr.route_id\nWHERE cr.duration_min < a.avg_min;\n```",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

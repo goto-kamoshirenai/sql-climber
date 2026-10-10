@@ -1,0 +1,21 @@
+{
+  "id": "0024",
+  "title": "引き返した日の記録",
+  "grade": 2500,
+  "altitude": 1850,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`climb_records.reached_summit` が `0`（山頂に届かなかった）の登山記録を取り出してください。\n\n- 列：`climb_records.climbed_on`、`climbers.name`、`mountains.name`、`routes.name`\n- 並び順：問わない",
+  "hints": [
+    "登山記録には登山者とルートの番号しかなく、山名はルートのさらに先にあります。記録 → 登山者、記録 → ルート → 山、と道をたどります。",
+    "`INNER JOIN` を3本続けます。山の表は記録と直接はつながっていないので、ルートの表を経由して結びます。",
+    "`SELECT cr.climbed_on, c.name, m.name, r.name FROM climb_records AS cr INNER JOIN climbers AS c ON ___ INNER JOIN routes AS r ON ___ INNER JOIN mountains AS m ON ___ WHERE ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT cr.climbed_on, c.name, m.name, r.name FROM climb_records AS cr INNER JOIN climbers AS c ON c.id = cr.climber_id INNER JOIN routes AS r ON r.id = cr.route_id INNER JOIN mountains AS m ON m.id = r.mountain_id WHERE cr.reached_summit = 0;",
+    "explanation": "```sql\nSELECT cr.climbed_on, c.name, m.name, r.name\nFROM climb_records AS cr\nINNER JOIN climbers AS c ON c.id = cr.climber_id\nINNER JOIN routes AS r ON r.id = cr.route_id\nINNER JOIN mountains AS m ON m.id = r.mountain_id\nWHERE cr.reached_summit = 0;\n```\n\n- `climb_records` を起点に、登山者・ルートを結ぶ\n- 山は `m.id = r.mountain_id` と、**ルートの** 列を使って結ぶ。記録の表に山の番号はない\n- `WHERE cr.reached_summit = 0` … 引き返した記録だけ残す\n\n4つの表を結ぶときは、E-R 図を見ながら「どの列からどの列へ渡るか」を一本ずつ確かめるのが確実です。`ON` の組み合わせを1つ間違えると、エラーにならずに見当違いの行が結ばれることがあります。\n\n結果を見ると、近藤 蓮さんは涸沢ルートで一度引き返し、翌日に登り直しています。山はまた来ればいい、ということです。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

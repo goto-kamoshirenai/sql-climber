@@ -1,0 +1,21 @@
+{
+  "id": "0006",
+  "title": "東京と神奈川の登山者",
+  "grade": 500,
+  "altitude": 270,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climbers` テーブルから、`prefecture` が `'東京都'` または `'神奈川県'` の登山者を取り出してください。\n\n- 列：`name`、`age`、`prefecture`\n- 並び順：問わない",
+  "hints": [
+    "1つの列が、いくつかの候補のどれかに一致する行を探します。",
+    "`OR` を重ねても書けますが、`IN (値1, 値2, …)` を使うと「候補のどれかに一致する」を短く書けます。",
+    "`SELECT … FROM climbers WHERE 列 IN ('…', '…');` の形です。都道府県名は「都」「県」まで正確に書きます。"
+  ],
+  "answer": {
+    "sql": "SELECT name, age, prefecture FROM climbers WHERE prefecture IN ('東京都', '神奈川県');",
+    "explanation": "```sql\nSELECT name, age, prefecture\nFROM climbers\nWHERE prefecture IN ('東京都', '神奈川県');\n```\n\n- `SELECT name, age, prefecture` … 氏名・年齢・都道府県をこの順で\n- `WHERE prefecture IN ('東京都', '神奈川県')` … 都道府県が候補のどちらかに一致する行を残す\n\n`=` による比較は完全一致です。`'東京'` と書くと `'東京都'` には一致せず、1行も返りません。値はデータのとおりに書いてください。\n\n別解として、`OR` でつないでも同じ結果になります。\n\n```sql\nSELECT name, age, prefecture\nFROM climbers\nWHERE prefecture = '東京都' OR prefecture = '神奈川県';\n```\n\n候補が増えるほど `IN` のほうが読みやすくなります。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

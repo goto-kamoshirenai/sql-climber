@@ -1,0 +1,21 @@
+{
+  "id": "0015",
+  "title": "地方ごとの山の数",
+  "grade": 1500,
+  "altitude": 850,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルの山を、`area` ごとに数えてください。\n\n- 列：`area`、山の数\n- 並び順：問わない",
+  "hints": [
+    "全体を1つにまとめるのではなく、地方ごとのグループに分けてから、グループの中で行数を数えます。",
+    "`GROUP BY 列` で、その列の値が同じ行をグループにまとめられます。集計関数はグループごとに計算されます。",
+    "`SELECT 列, COUNT(*) FROM mountains GROUP BY … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT area, COUNT(*) AS mountain_count FROM mountains GROUP BY area;",
+    "explanation": "```sql\nSELECT area, COUNT(*) AS mountain_count\nFROM mountains\nGROUP BY area;\n```\n\n- `GROUP BY area` … 地方の値が同じ行を1つのグループにまとめる\n- `SELECT area, COUNT(*)` … グループごとに、地方名と行数を返す\n\n`GROUP BY` を使うとき、`SELECT` に書けるのは「グループ分けに使った列」と「集計関数」だけです。`SELECT area, name, COUNT(*)` のように、グループの中で値が1つに決まらない列を書くと、エラーになるか、どの行の値が出るか分からない結果になります。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

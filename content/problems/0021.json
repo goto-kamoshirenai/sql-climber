@@ -1,0 +1,21 @@
+{
+  "id": "0021",
+  "title": "ルートと山を結ぶ",
+  "grade": 2500,
+  "altitude": 1550,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`routes` テーブルから、`level` が `'上級'` のルートを、山名と一緒に取り出してください。\n\n- 列：`mountains.name`、`routes.name`\n- 並び順：問わない\n- 補足：`routes.mountain_id` が `mountains.id` を指しています",
+  "hints": [
+    "ルートの表には山の番号しかありません。`routes.mountain_id` と `mountains.id` が同じ行どうしを横につなげれば、ルートと山名が1行に並びます。",
+    "`INNER JOIN` と `ON` を使います。どちらの表にも `name` 列があるので、`m.name` のように表の別名を付けて区別します。",
+    "`SELECT m.name, r.name FROM routes AS r INNER JOIN mountains AS m ON ___ = ___ WHERE ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT m.name, r.name FROM routes AS r INNER JOIN mountains AS m ON m.id = r.mountain_id WHERE r.level = '上級';",
+    "explanation": "```sql\nSELECT m.name, r.name\nFROM routes AS r\nINNER JOIN mountains AS m ON m.id = r.mountain_id\nWHERE r.level = '上級';\n```\n\n- `FROM routes AS r` … ルートの表を起点にし、`r` という短い別名を付ける\n- `INNER JOIN mountains AS m ON m.id = r.mountain_id` … ルートの `mountain_id` と山の `id` が一致する行どうしを結ぶ\n- `WHERE r.level = '上級'` … 結んだ後の行から、上級ルートだけを残す\n- `SELECT m.name, r.name` … 山名、ルート名の順に取り出す\n\n`ON` は「どの行とどの行をつなぐか」、`WHERE` は「つないだ結果からどの行を残すか」です。役目を分けて書くと読みやすくなります。\n\n両方の表に `name` があるため、`SELECT name` とだけ書くと「どちらの name か分からない」とエラーになります。列名が重なるときは、必ず表名か別名を前に付けてください。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

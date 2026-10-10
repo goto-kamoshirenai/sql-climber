@@ -1,0 +1,21 @@
+{
+  "id": "0005",
+  "title": "関東で歩きがいのある山",
+  "grade": 500,
+  "altitude": 220,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、次の条件を満たす山を取り出してください。\n\n- 条件：`area` が `'関東'` で、かつ「`has_ropeway` が `0`」「`altitude` が `1900` 以上」の少なくとも一方を満たす\n- 列：`name`、`altitude`、`has_ropeway`\n- 並び順：問わない",
+  "hints": [
+    "条件は「関東であること」と「（ロープウェイなし または 1900m 以上）」の2つを、両方とも満たすことです。後ろの条件はひとかたまりとして扱います。",
+    "「かつ」は `AND`、「または」は `OR` です。`AND` は `OR` より先に結び付くので、`OR` の部分を丸かっこで囲みます。",
+    "`SELECT … FROM mountains WHERE 条件A AND (条件B OR 条件C);` の形です。文字列は `'関東'` のように単引用符で囲みます。"
+  ],
+  "answer": {
+    "sql": "SELECT name, altitude, has_ropeway FROM mountains WHERE area = '関東' AND (has_ropeway = 0 OR altitude >= 1900);",
+    "explanation": "```sql\nSELECT name, altitude, has_ropeway\nFROM mountains\nWHERE area = '関東'\n  AND (has_ropeway = 0 OR altitude >= 1900);\n```\n\n- `WHERE area = '関東'` … 関東の山に限る\n- `AND (has_ropeway = 0 OR altitude >= 1900)` … そのうえで、ロープウェイがないか、1900m 以上の山を残す\n\nかっこを外して `area = '関東' AND has_ropeway = 0 OR altitude >= 1900` と書くと、`AND` が先に結び付いて「（関東でロープウェイなし）または（1900m 以上）」と読まれます。すると四国の石鎚山や剣山まで紛れ込みます。`AND` と `OR` を混ぜるときは、かっこで意図を明示するのが山の鉄則です。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

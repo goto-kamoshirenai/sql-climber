@@ -1,0 +1,21 @@
+{
+  "id": "0027",
+  "title": "よく登られる山",
+  "grade": 2500,
+  "altitude": 2150,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "登山記録が3件以上ある山について、記録の件数を求めてください。\n\n- 列：`mountains.name`、件数\n- 並び順：件数の多い順。同じ件数は `mountains.altitude` の高い順\n- 補足：途中で引き返した記録（`reached_summit` が `0`）も1件と数える",
+  "hints": [
+    "記録 → ルート → 山 と結べば、各記録がどの山のものか分かります。それを山ごとにまとめて数え、3件以上の山だけ残します。",
+    "`INNER JOIN` で3つの表を結び、`GROUP BY` で山ごとにまとめます。集計した結果での絞り込みは `WHERE` ではなく `HAVING` です。",
+    "`SELECT m.name, COUNT(*) FROM climb_records AS cr INNER JOIN routes AS r ON ___ INNER JOIN mountains AS m ON ___ GROUP BY ___ HAVING ___ ORDER BY ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT m.name, COUNT(*) FROM climb_records AS cr INNER JOIN routes AS r ON r.id = cr.route_id INNER JOIN mountains AS m ON m.id = r.mountain_id GROUP BY m.id, m.name, m.altitude HAVING COUNT(*) >= 3 ORDER BY COUNT(*) DESC, m.altitude DESC;",
+    "explanation": "```sql\nSELECT m.name, COUNT(*)\nFROM climb_records AS cr\nINNER JOIN routes AS r ON r.id = cr.route_id\nINNER JOIN mountains AS m ON m.id = r.mountain_id\nGROUP BY m.id, m.name, m.altitude\nHAVING COUNT(*) >= 3\nORDER BY COUNT(*) DESC, m.altitude DESC;\n```\n\n- 2本の `INNER JOIN` … 記録1件ごとに、それが登った山を横に並べる\n- `GROUP BY m.id, m.name, m.altitude` … 山ごとにまとめる。`SELECT` や `ORDER BY` で使う山の列はここにも書いておく\n- `HAVING COUNT(*) >= 3` … まとめた後の件数で絞る\n- `ORDER BY COUNT(*) DESC, m.altitude DESC` … 件数の多い順、同数なら標高の高い順\n\n富士山や赤岳のように複数のルートを持つ山は、ルートごとではなく山ごとにまとまっている点を確かめてください。`GROUP BY r.id` にすると「ルートごとの件数」になってしまいます。\n\n`WHERE COUNT(*) >= 3` と書くとエラーになります。`WHERE` はまとめる前の1行ずつに効く条件なので、件数はまだ存在しないのです。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

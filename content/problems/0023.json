@@ -1,0 +1,21 @@
+{
+  "id": "0023",
+  "title": "八月の確定予約",
+  "grade": 2500,
+  "altitude": 1750,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`reservations` テーブルから、次の条件を満たす予約を取り出してください。\n\n- 条件：`stay_on` が `'2024-08-01'` 〜 `'2024-08-31'`（両端を含む）で、かつ `status` が `'確定'`\n- 列：`reservations.stay_on`、`climbers.name`、`huts.name`\n- 並び順：`stay_on` の古い順。同じ日は `reservations.id` の小さい順",
+  "hints": [
+    "予約の表には登山者と小屋の番号しかありません。予約を真ん中に置き、登山者の表と小屋の表をそれぞれ結びます。",
+    "`INNER JOIN` は続けて何本でも書けます。日付は `'YYYY-MM-DD'` の文字列なので、`BETWEEN` でそのまま範囲を指定できます。",
+    "`SELECT rv.stay_on, c.name, h.name FROM reservations AS rv INNER JOIN climbers AS c ON ___ INNER JOIN huts AS h ON ___ WHERE ___ AND ___ ORDER BY ___, ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT rv.stay_on, c.name, h.name FROM reservations AS rv INNER JOIN climbers AS c ON c.id = rv.climber_id INNER JOIN huts AS h ON h.id = rv.hut_id WHERE rv.status = '確定' AND rv.stay_on BETWEEN '2024-08-01' AND '2024-08-31' ORDER BY rv.stay_on, rv.id;",
+    "explanation": "```sql\nSELECT rv.stay_on, c.name, h.name\nFROM reservations AS rv\nINNER JOIN climbers AS c ON c.id = rv.climber_id\nINNER JOIN huts AS h ON h.id = rv.hut_id\nWHERE rv.status = '確定'\n  AND rv.stay_on BETWEEN '2024-08-01' AND '2024-08-31'\nORDER BY rv.stay_on, rv.id;\n```\n\n- `FROM reservations AS rv` … 予約を起点にする。登山者と小屋の両方につながっているのは予約の表だから\n- 1本目の `INNER JOIN` … 予約に登山者名を付け足す\n- 2本目の `INNER JOIN` … さらに小屋名を付け足す\n- `WHERE` … 確定した予約で、宿泊日が8月のものに絞る\n- `ORDER BY rv.stay_on, rv.id` … 8月17日は赤岳の小屋に2件の予約があるので、id で順を決める\n\n日付は `'YYYY-MM-DD'` 形式の文字列で入っているため、文字列の大小がそのまま日付の前後になります。`rv.stay_on LIKE '2024-08%'` と書いても同じ結果です。\n\nキャンセルされた予約も8月にあります。状態の条件を忘れると、泊まらなかった人まで名簿に載ってしまいます。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

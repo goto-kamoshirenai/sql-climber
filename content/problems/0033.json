@@ -1,0 +1,21 @@
+{
+  "id": "0033",
+  "title": "登山回数の分布",
+  "grade": 3776,
+  "altitude": 2900,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "登山者1人あたりの登山記録の件数を数え、その件数ごとに登山者が何人いるかを求めてください。\n\n- 列：件数、人数\n- 並び順：件数の少ない順\n- 補足：登山記録のない登山者は含めない",
+  "hints": [
+    "集計を2段階で行います。1段目で「登山者ごとの件数」の表を作り、2段目でその表を件数ごとにまとめて人数を数えます。",
+    "`FROM` 句にサブクエリを書くと、その結果を1つの表として扱えます（派生テーブル）。派生テーブルには `AS t` のように別名を付けます。",
+    "`SELECT t.cnt, COUNT(*) FROM (SELECT climber_id, COUNT(*) AS cnt FROM climb_records GROUP BY ___) AS t GROUP BY ___ ORDER BY ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT t.cnt, COUNT(*) FROM (SELECT climber_id, COUNT(*) AS cnt FROM climb_records GROUP BY climber_id) AS t GROUP BY t.cnt ORDER BY t.cnt;",
+    "explanation": "```sql\nSELECT t.cnt, COUNT(*)\nFROM (\n  SELECT climber_id, COUNT(*) AS cnt\n  FROM climb_records\n  GROUP BY climber_id\n) AS t\nGROUP BY t.cnt\nORDER BY t.cnt;\n```\n\n- 内側 … 登山者ごとの記録件数。1人1行の表 `t` ができる（列は `climber_id` と `cnt`）\n- `GROUP BY t.cnt` … その表を件数ごとにまとめる\n- `COUNT(*)` … それぞれの件数に何人いるか\n\n`COUNT(COUNT(*))` のように集計関数を重ねることはできません。「集計した結果をさらに集計する」ときは、1段目を `FROM` 句のサブクエリに閉じ込めて、ふつうの表として扱います。\n\n派生テーブルの別名（`AS t`）は、PostgreSQL では省略するとエラーになります。必ず付ける習慣にしてください。また、内側で `COUNT(*)` に `cnt` という名前を付けておかないと、外側から参照できません。\n\n登山記録が1件もない坂本 光さんは、内側の表にそもそも現れないので、この分布には入りません。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

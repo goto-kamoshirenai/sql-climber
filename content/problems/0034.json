@@ -1,0 +1,21 @@
+{
+  "id": "0034",
+  "title": "山域ごとの戦績",
+  "grade": 3776,
+  "altitude": 3000,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`mountains.range_name` ごとに、登山記録を集計してください。\n\n- 列：`range_name`、記録の件数、山頂に届いた記録（`reached_summit` が `1`）の件数、`duration_min` の平均\n- 並び順：記録の件数の多い順（件数が同じ山域はありません）\n- 補足：記録の件数と平均には、途中で引き返した記録も含める。平均は `ROUND(値, 1)` で小数第1位に丸める",
+  "hints": [
+    "記録 → ルート → 山 と結ぶと、各記録に山域が付きます。あとは山域ごとにまとめて、件数・登頂数・平均を一度に求めます。",
+    "`INNER JOIN` を2本、`GROUP BY range_name` でまとめます。`reached_summit` は 1 か 0 なので、`SUM` すれば登頂した件数になります。",
+    "`SELECT m.range_name, COUNT(*), SUM(___), ROUND(AVG(___), 1) FROM climb_records AS cr INNER JOIN routes AS r ON ___ INNER JOIN mountains AS m ON ___ GROUP BY ___ ORDER BY ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT m.range_name, COUNT(*), SUM(cr.reached_summit), ROUND(AVG(cr.duration_min), 1) FROM climb_records AS cr INNER JOIN routes AS r ON r.id = cr.route_id INNER JOIN mountains AS m ON m.id = r.mountain_id GROUP BY m.range_name ORDER BY COUNT(*) DESC;",
+    "explanation": "```sql\nSELECT m.range_name,\n       COUNT(*),\n       SUM(cr.reached_summit),\n       ROUND(AVG(cr.duration_min), 1)\nFROM climb_records AS cr\nINNER JOIN routes AS r ON r.id = cr.route_id\nINNER JOIN mountains AS m ON m.id = r.mountain_id\nGROUP BY m.range_name\nORDER BY COUNT(*) DESC;\n```\n\n- 2本の `INNER JOIN` … 記録ごとに山域を付ける\n- `GROUP BY m.range_name` … 山域ごとにまとめる\n- `COUNT(*)` … 記録の件数\n- `SUM(cr.reached_summit)` … 登頂なら 1、引き返しなら 0 なので、足せば登頂の件数になる\n- `ROUND(AVG(cr.duration_min), 1)` … 平均所要時間を小数第1位に丸める\n\n1つの `GROUP BY` の中で、`COUNT`・`SUM`・`AVG` を並べて書けます。まとめ方が同じなら、集計ごとにクエリを分ける必要はありません。\n\n中央アルプスの平均が極端に短いのは、ロープウェイで高所まで上がる千畳敷ルートの記録しかないからです。数字を見たら、その裏にあるデータを一度のぞいてみる癖をつけておくと、思い違いを防げます。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0017",
+  "title": "よく山へ通う登山者",
+  "grade": 1500,
+  "altitude": 1030,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルを `climber_id` ごとにまとめ、記録が3件以上ある登山者を取り出してください。\n\n- 列：`climber_id`、件数\n- 並び順：問わない",
+  "hints": [
+    "登山者ごとに記録を数え、その **数えた結果** で絞り込みます。行を数える前ではなく、数えた後の条件です。",
+    "グループにまとめた後の絞り込みには `HAVING` を使います。`WHERE` では集計関数を条件に書けません。",
+    "`SELECT climber_id, COUNT(*) FROM climb_records GROUP BY … HAVING COUNT(*) ○○ … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT climber_id, COUNT(*) AS record_count FROM climb_records GROUP BY climber_id HAVING COUNT(*) >= 3;",
+    "explanation": "```sql\nSELECT climber_id, COUNT(*) AS record_count\nFROM climb_records\nGROUP BY climber_id\nHAVING COUNT(*) >= 3;\n```\n\n- `GROUP BY climber_id` … 登山者ごとのグループに分ける\n- `HAVING COUNT(*) >= 3` … 記録が3件以上のグループだけを残す\n\n`WHERE` と `HAVING` の違いは、絞り込むタイミングです。`WHERE` は **グループに分ける前の行** を、`HAVING` は **集計した後のグループ** を絞ります。「登頂した記録だけを数えて3件以上」なら、`WHERE reached_summit = 1` と `HAVING` を両方使うことになります。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

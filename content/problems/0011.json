@@ -1,0 +1,21 @@
+{
+  "id": "0011",
+  "title": "富士山まであと何メートル",
+  "grade": 1500,
+  "altitude": 530,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、`area` が `'九州'` の山について、富士山（3776m）との標高差を求めてください。\n\n- 列：`name`、`altitude`、標高差（`3776` から `altitude` を引いた値）\n- 並び順：`altitude` の高い順（同じ標高の山はありません）",
+  "hints": [
+    "`SELECT` に書けるのは列名だけではありません。列を使った計算式を書けば、その計算結果が新しい列として返ります。",
+    "数値の引き算は `-` で書けます。計算した列には `AS` で分かりやすい名前を付けておくとよいでしょう。",
+    "`SELECT name, altitude, ○○ - altitude AS 差 FROM mountains WHERE … ORDER BY …;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT name, altitude, 3776 - altitude AS diff_from_fuji FROM mountains WHERE area = '九州' ORDER BY altitude DESC;",
+    "explanation": "```sql\nSELECT name, altitude, 3776 - altitude AS diff_from_fuji\nFROM mountains\nWHERE area = '九州'\nORDER BY altitude DESC;\n```\n\n- `3776 - altitude AS diff_from_fuji` … 行ごとに 3776 から標高を引き、その結果を `diff_from_fuji` という列として返す\n- `WHERE area = '九州'` … 九州の山に絞る\n- `ORDER BY altitude DESC` … 標高の高い順に並べる\n\n計算列はその場で求めた値で、テーブルのデータは変わりません。\n\n整数どうしの割り算はエンジンによって小数が切り捨てられることがあるので、割り算をするときは `altitude * 1.0 / 1000` のように一方を小数にしておくと安全です。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0026",
+  "title": "師匠と弟子",
+  "grade": 2500,
+  "altitude": 2050,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "師匠のいる登山者について、本人と師匠の名前を取り出してください。\n\n- 列：本人の `name`、師匠の `name`\n- 並び順：問わない\n- 補足：`climbers.mentor_id` は師匠にあたる登山者の `id` です（師匠がいなければ `NULL`）",
+  "hints": [
+    "師匠も同じ `climbers` 表に載っています。同じ表を「弟子として見る表」と「師匠として見る表」の2つに見立てて結びます。",
+    "同じ表を2回 `FROM` / `JOIN` に書き、`AS` で別々の別名を付けます（自己結合）。弟子の `mentor_id` と師匠の `id` を結びます。",
+    "`SELECT d.name, t.name FROM climbers AS d INNER JOIN climbers AS t ON ___ = ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT d.name, t.name FROM climbers AS d INNER JOIN climbers AS t ON t.id = d.mentor_id;",
+    "explanation": "```sql\nSELECT d.name, t.name\nFROM climbers AS d\nINNER JOIN climbers AS t ON t.id = d.mentor_id;\n```\n\n- `climbers AS d` … 弟子（disciple）として見る登山者の表\n- `climbers AS t` … 師匠（teacher）として見る、同じ登山者の表\n- `ON t.id = d.mentor_id` … 弟子の「師匠の id」と、師匠側の id が一致する組を作る\n\n同じ表を2回使うときは別名が必須です。別名がないと、どちらの `name` を指しているのか区別できません。\n\n`INNER JOIN` なので、`mentor_id` が NULL の人（師匠のいない人）は結果に出ません。問いの「師匠のいる登山者」にちょうど合います。全員を出して師匠欄を空にしたいなら `LEFT JOIN` にします。\n\n結果をたどると、近藤 蓮さんの師匠は石井 拓海さん、石井さんの師匠は青木 遥さんと、三代続く系譜が見えます。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

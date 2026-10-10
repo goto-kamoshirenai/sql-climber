@@ -1,0 +1,21 @@
+{
+  "id": "0009",
+  "title": "関東の山をロープウェイ順に",
+  "grade": 500,
+  "altitude": 400,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、`area` が `'関東'` の山を取り出してください。\n\n- 列：`name`、`has_ropeway`、`altitude`\n- 並び順：`has_ropeway` が `1` の山を先に。`has_ropeway` が同じ山どうしは `altitude` の低い順",
+  "hints": [
+    "並べ替えの基準が2つあります。まず has_ropeway で並べ、同じ値どうしの中を標高で並べます。",
+    "`ORDER BY` に列をカンマ区切りで並べると、前の列が同じときに次の列で並べます。大きい順は `DESC`、小さい順は `ASC`（省略可）です。",
+    "`SELECT … FROM mountains WHERE … ORDER BY 列1 ○○, 列2 ○○;` の形です。1 を先にするには、どちら向きに並べればよいでしょうか。"
+  ],
+  "answer": {
+    "sql": "SELECT name, has_ropeway, altitude FROM mountains WHERE area = '関東' ORDER BY has_ropeway DESC, altitude ASC;",
+    "explanation": "```sql\nSELECT name, has_ropeway, altitude\nFROM mountains\nWHERE area = '関東'\nORDER BY has_ropeway DESC, altitude ASC;\n```\n\n- `WHERE area = '関東'` … 関東の山に絞る\n- `ORDER BY has_ropeway DESC` … has_ropeway の大きい順（1 が先、0 が後）\n- `, altitude ASC` … has_ropeway が同じ山どうしは標高の低い順\n\n`DESC` や `ASC` は、その直前の列1つだけに効きます。`ORDER BY has_ropeway, altitude DESC` と書くと、has_ropeway は小さい順（0 が先）になってしまいます。並べ替えの向きは列ごとに書き添えるのが確実です。\n\nまた、`ORDER BY` を書かない限り、結果の並び順は保証されません。順序が意味を持つときは必ず明示します。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0016",
+  "title": "天気と行動時間",
+  "grade": 1500,
+  "altitude": 940,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルを `weather` ごとにまとめ、記録の件数と `duration_min` の平均を求めてください。\n\n- 列：`weather`、件数、平均\n- 並び順：件数の多い順（件数が同じ天気はありません）\n- 補足：平均は `ROUND(値, 1)` で小数第1位に丸める",
+  "hints": [
+    "天気ごとのグループに分け、グループの中で件数と平均を求めます。そのあと、件数を基準に並べ替えます。",
+    "`GROUP BY` でまとめ、`COUNT(*)` と `ROUND(AVG(…), 1)` を並べます。`ORDER BY` には集計関数そのものや、`SELECT` で付けた別名を書けます。",
+    "`SELECT weather, COUNT(*) AS 件数, ROUND(AVG(…), 1) FROM climb_records GROUP BY … ORDER BY 件数 ○○;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT weather, COUNT(*) AS record_count, ROUND(AVG(duration_min), 1) AS avg_min FROM climb_records GROUP BY weather ORDER BY record_count DESC;",
+    "explanation": "```sql\nSELECT weather,\n       COUNT(*) AS record_count,\n       ROUND(AVG(duration_min), 1) AS avg_min\nFROM climb_records\nGROUP BY weather\nORDER BY record_count DESC;\n```\n\n- `GROUP BY weather` … 天気ごとのグループに分ける\n- `COUNT(*)` / `ROUND(AVG(duration_min), 1)` … グループごとの件数と、行動時間の平均\n- `ORDER BY record_count DESC` … 集計した件数の多い順に並べる\n\nSQL は `FROM` → `WHERE` → `GROUP BY` → `SELECT` → `ORDER BY` の順に処理されます。`ORDER BY` は最後なので、`SELECT` で付けた別名 `record_count` を使えます。一方、`WHERE` からは別名も集計結果も参照できません。\n\n晴れの日ばかり記録が多いので、平均だけを見比べるときは件数の少なさにも目を配ってください。2件の平均は、たまたまの1回に大きく左右されます。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

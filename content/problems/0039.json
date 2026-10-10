@@ -1,0 +1,21 @@
+{
+  "id": "0039",
+  "title": "山域ごとの二番手まで",
+  "grade": 3776,
+  "altitude": 3650,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`range_name` ごとに山を `altitude` の高い順に順位付けし、各山域の2位以内の山を取り出してください。\n\n- 列：`range_name`、順位、`name`\n- 並び順：問わない\n- 補足：標高が同じ山は同じ順位とし、次の順位は飛ばす（`RANK` と同じ数え方）。山が1つだけの山域では、その山が1位",
+  "hints": [
+    "順位を山域の中だけで付けます。北アルプスの 1位、南アルプスの 1位……と、山域ごとに順位が 1 から始まります。",
+    "`RANK() OVER (PARTITION BY range_name ORDER BY altitude DESC)` で、山域ごとに区切った順位になります。絞り込みは前の問題と同じく、`FROM` 句のサブクエリの外側で行います。",
+    "`SELECT t.range_name, t.rnk, t.name FROM (SELECT range_name, name, RANK() OVER (PARTITION BY ___ ORDER BY ___) AS rnk FROM mountains) AS t WHERE ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT t.range_name, t.rnk, t.name FROM (SELECT range_name, name, RANK() OVER (PARTITION BY range_name ORDER BY altitude DESC) AS rnk FROM mountains) AS t WHERE t.rnk <= 2;",
+    "explanation": "```sql\nSELECT t.range_name, t.rnk, t.name\nFROM (\n  SELECT range_name, name,\n         RANK() OVER (PARTITION BY range_name ORDER BY altitude DESC) AS rnk\n  FROM mountains\n) AS t\nWHERE t.rnk <= 2;\n```\n\n- `PARTITION BY range_name` … 山域ごとに区切る。順位は区切りごとに 1 から付け直される\n- `ORDER BY altitude DESC` … 区切りの中では標高の高い順\n- `WHERE t.rnk <= 2` … 各山域の 2位以内を残す\n\n`PARTITION BY` は `GROUP BY` と似ていますが、行をまとめません。山は1つずつ残ったまま、「自分の山域の中で何番目か」が付け足されます。「グループごとの上位 N 件」は、この形で書くのが定番です。\n\n全体では 3位だった間ノ岳も、南アルプスの中では北岳に次ぐ 2位です。同じ 3190m の奥穂高岳は、北アルプスの 1位になります。区切り方によって、順位の意味が変わることを確かめてください。\n\n八ヶ岳と中央アルプスは山が1つだけなので、1位の1行だけが出ます。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

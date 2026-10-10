@@ -1,0 +1,21 @@
+{
+  "id": "0028",
+  "title": "富士山に登った人",
+  "grade": 2500,
+  "altitude": 2250,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "富士山（`mountains.name` が `'富士山'`）のいずれかのルートの登山記録を持つ登山者を取り出してください。\n\n- 列：`climbers.name`（同じ人は1回だけ）\n- 並び順：問わない\n- 補足：途中で引き返した記録も含める。`JOIN` を使わず、`IN` とサブクエリで解く",
+  "hints": [
+    "内側からたどります。「富士山の id」→「その山のルートの id」→「そのルートを登った登山者の id」→「その登山者の名前」。",
+    "`WHERE 列 IN (SELECT ...)` で、サブクエリが返した値の一覧に含まれる行だけを残せます。サブクエリの中にさらにサブクエリを書けます。",
+    "`SELECT name FROM climbers WHERE id IN (SELECT ___ FROM climb_records WHERE route_id IN (SELECT ___ FROM routes WHERE mountain_id IN (SELECT ___ FROM mountains WHERE ___)));`"
+  ],
+  "answer": {
+    "sql": "SELECT name FROM climbers WHERE id IN (SELECT climber_id FROM climb_records WHERE route_id IN (SELECT id FROM routes WHERE mountain_id IN (SELECT id FROM mountains WHERE name = '富士山')));",
+    "explanation": "```sql\nSELECT name\nFROM climbers\nWHERE id IN (\n  SELECT climber_id FROM climb_records\n  WHERE route_id IN (\n    SELECT id FROM routes\n    WHERE mountain_id IN (\n      SELECT id FROM mountains WHERE name = '富士山'\n    )\n  )\n);\n```\n\nいちばん内側から読みます。\n\n1. `SELECT id FROM mountains WHERE name = '富士山'` … 富士山の id\n2. `SELECT id FROM routes WHERE mountain_id IN (...)` … 富士山の3本のルートの id\n3. `SELECT climber_id FROM climb_records WHERE route_id IN (...)` … それらのルートを登った人の id（同じ人が何度も出てくる）\n4. 外側の `WHERE id IN (...)` … その一覧に含まれる登山者だけを残す\n\n`IN` は「一覧に含まれるかどうか」だけを見るので、一覧に同じ id が何度出てきても、登山者は1回しか出ません。`JOIN` で書くと記録の件数だけ行が増えるので、`DISTINCT` が必要になります。この違いが `IN` の使いどころです。\n\n後藤 美月さんは御殿場ルートで引き返していますが、吉田ルートでの記録もあり、いずれにせよ対象です。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "base-camp",
+  "name": "ふもと山域データベース",
+  "description": "日本各地の山と、登山者と、その登山記録を管理する小さなデータベース。",
+  "tables": [
+    {
+      "name": "mountains",
+      "description": "山の基本情報",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "山ID" },
+        { "name": "name", "type": "TEXT", "description": "山名" },
+        { "name": "altitude", "type": "INTEGER", "description": "標高（m）" },
+        { "name": "prefecture", "type": "TEXT", "description": "所在する都道府県（複数にまたがる山は代表の1つ）" },
+        { "name": "area", "type": "TEXT", "description": "地方（関東・近畿・四国・中国・九州）" },
+        { "name": "has_ropeway", "type": "INTEGER", "description": "ロープウェイまたはケーブルカーがあるか（1: ある / 0: ない）" }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "name": "climbers",
+      "description": "登山者",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "登山者ID" },
+        { "name": "name", "type": "TEXT", "description": "氏名" },
+        { "name": "age", "type": "INTEGER", "description": "年齢" },
+        { "name": "prefecture", "type": "TEXT", "description": "住んでいる都道府県" },
+        { "name": "club", "type": "TEXT", "description": "所属している山岳会（所属なしは NULL）" },
+        { "name": "joined_on", "type": "TEXT", "description": "登録日（YYYY-MM-DD）" }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "name": "climb_records",
+      "description": "登山記録。1回の山行が1行",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "記録ID" },
+        { "name": "climber_id", "type": "INTEGER", "description": "登山者ID" },
+        { "name": "mountain_id", "type": "INTEGER", "description": "山ID" },
+        { "name": "climbed_on", "type": "TEXT", "description": "登山日（YYYY-MM-DD）" },
+        { "name": "duration_min", "type": "INTEGER", "description": "行動時間（分）" },
+        { "name": "weather", "type": "TEXT", "description": "天気（晴れ・曇り・雨・霧）" },
+        { "name": "reached_summit", "type": "INTEGER", "description": "山頂に着いたか（1: 登頂 / 0: 途中で引き返した）" }
+      ],
+      "foreignKeys": [
+        { "column": "climber_id", "references": { "table": "climbers", "column": "id" } },
+        { "column": "mountain_id", "references": { "table": "mountains", "column": "id" } }
+      ]
+    }
+  ]
+}

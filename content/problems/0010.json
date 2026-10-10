@@ -1,0 +1,21 @@
+{
+  "id": "0010",
+  "title": "長丁場の山行ベスト3",
+  "grade": 500,
+  "altitude": 460,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルから、`duration_min` の長い順に上位3件を取り出してください。\n\n- 列：`id`、`climbed_on`、`duration_min`\n- 並び順：`duration_min` の長い順。同じ値は `id` の小さい順",
+  "hints": [
+    "まず全体を行動時間の長い順に並べ、その先頭から3行だけを取り出します。",
+    "並べ替えは `ORDER BY … DESC`、先頭から決まった行数だけ取るのは `LIMIT 件数` です。`LIMIT` は文の最後に書きます。",
+    "`SELECT … FROM climb_records ORDER BY 列 DESC, 列 ASC LIMIT ○;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT id, climbed_on, duration_min FROM climb_records ORDER BY duration_min DESC, id ASC LIMIT 3;",
+    "explanation": "```sql\nSELECT id, climbed_on, duration_min\nFROM climb_records\nORDER BY duration_min DESC, id ASC\nLIMIT 3;\n```\n\n- `ORDER BY duration_min DESC, id ASC` … 行動時間の長い順。同じ時間なら記録IDの小さい順\n- `LIMIT 3` … 並べた結果の先頭3行だけを返す\n\n`LIMIT` は並べ替えの **後** に効きます。`ORDER BY` を付けずに `LIMIT 3` だけを書くと、どの3行が返るかは決まらず、「上位3件」にはなりません。\n\n第2ソートキーの `id` は、同じ行動時間の記録が境目にまたがったときに、どれを残すかを一意に決めるための備えです。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}
