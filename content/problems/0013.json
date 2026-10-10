@@ -1,0 +1,21 @@
+{
+  "id": "0013",
+  "title": "山田さんの歩いた時間",
+  "grade": 1500,
+  "altitude": 690,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルから、`climber_id` が `1` の記録について、`duration_min` の合計と最大値を求めてください。\n\n- 列：合計、最大値\n- 結果：1行",
+  "hints": [
+    "登山者ID 1 の記録に絞ってから、行動時間をまとめて計算します。合計と最大値の2つを横に並べます。",
+    "合計は `SUM(列)`、最大値は `MAX(列)` です。集計関数は1つの `SELECT` に複数並べられます。",
+    "`SELECT SUM(…), MAX(…) FROM climb_records WHERE … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT SUM(duration_min) AS total_min, MAX(duration_min) AS longest_min FROM climb_records WHERE climber_id = 1;",
+    "explanation": "```sql\nSELECT SUM(duration_min) AS total_min,\n       MAX(duration_min) AS longest_min\nFROM climb_records\nWHERE climber_id = 1;\n```\n\n- `WHERE climber_id = 1` … 山田さんの記録（4件）に絞る\n- `SUM(duration_min)` … 行動時間の合計\n- `MAX(duration_min)` … 行動時間の最大値\n\n`SUM` は値を足し合わせ、`COUNT` は行の数を数えます。名前が似た役割に見えても、求めるものが違います。「何分歩いたか」なら `SUM`、「何回登ったか」なら `COUNT` です。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

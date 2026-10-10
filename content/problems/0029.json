@@ -1,0 +1,21 @@
+{
+  "id": "0029",
+  "title": "一度も引き返さなかった人",
+  "grade": 2500,
+  "altitude": 2350,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "登山記録が1件以上あり、かつ途中で引き返した記録（`reached_summit` が `0`）が1件もない登山者を取り出してください。\n\n- 列：`climbers.name`\n- 並び順：問わない",
+  "hints": [
+    "条件は2つです。「その人の記録が存在する」と「その人の、引き返した記録が存在しない」。どちらも、登山者1人ずつについて記録の表をのぞいて確かめます。",
+    "`EXISTS (SELECT ...)` はサブクエリが1行でも返せば真、`NOT EXISTS` は1行も返さなければ真です。サブクエリの中で外側の登山者の id を参照します。",
+    "`SELECT c.name FROM climbers AS c WHERE EXISTS (SELECT 1 FROM climb_records AS cr WHERE ___) AND NOT EXISTS (SELECT 1 FROM climb_records AS cr WHERE ___ AND ___);`"
+  ],
+  "answer": {
+    "sql": "SELECT c.name FROM climbers AS c WHERE EXISTS (SELECT 1 FROM climb_records AS cr WHERE cr.climber_id = c.id) AND NOT EXISTS (SELECT 1 FROM climb_records AS cr WHERE cr.climber_id = c.id AND cr.reached_summit = 0);",
+    "explanation": "```sql\nSELECT c.name\nFROM climbers AS c\nWHERE EXISTS (\n    SELECT 1 FROM climb_records AS cr\n    WHERE cr.climber_id = c.id\n  )\n  AND NOT EXISTS (\n    SELECT 1 FROM climb_records AS cr\n    WHERE cr.climber_id = c.id AND cr.reached_summit = 0\n  );\n```\n\n- `EXISTS (...)` … この登山者（`c.id`）の記録が1件でもあれば真\n- `NOT EXISTS (...)` … この登山者の「引き返した記録」が1件もなければ真\n- `SELECT 1` … `EXISTS` は行があるかどうかしか見ないので、何を選んでもよい。慣習で `1` と書く\n\nサブクエリの中の `c.id` は、外側でいま見ている登山者を指します。登山者が1人ずつ入れ替わるたびに、サブクエリが確かめ直されるイメージです。\n\n1つ目の条件を忘れると、登山記録が1件もない坂本 光さんまで答えに入ります。「引き返した記録がない」は、記録そのものがない人にも当てはまってしまうからです。`NOT EXISTS` を使うときは、「そもそも対象がない」場合をどう扱うかを必ず考えてください。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

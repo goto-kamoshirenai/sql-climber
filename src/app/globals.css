@@ -1,0 +1,292 @@
+/* ==================================================================
+ * テーマトークン（docs/design/06-design-system.md）
+ * ライト = 紙の地図 / ダーク = 夜山。アクセントは各テーマ1色。
+ * ================================================================== */
+
+:root {
+  color-scheme: light;
+  --bg: #f6f4ee;
+  --surface: #ffffff;
+  --surface-2: #efece3;
+  --text: #2b2b28;
+  --text-muted: #6e6a60;
+  --accent: #2e6e4e;
+  --accent-strong: #1f5038;
+  --accent-soft: #e3eee7;
+  --on-accent: #ffffff;
+  --line: #d9d4c8;
+  --line-strong: #c9c3b5;
+  --danger: #b0483c;
+  --danger-soft: #f6e4e1;
+  --code-bg: #fbfaf6;
+  --grid-dot: rgb(43 43 40 / 0.07);
+  --mountain-back: #c9c3b5;
+  --mountain-front: #6e6a60;
+  --snow: #ffffff;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+  --header-h: 56px;
+  --mobile-bar-h: 56px;
+  --font-sans:
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui,
+    sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* dotterel-ui のトークンをアプリのテーマに合わせる */
+  --dotterel-color-accent: var(--accent);
+  --dotterel-color-accent-emphasis: var(--accent-strong);
+  --dotterel-color-accent-surface: var(--accent-soft);
+  --dotterel-color-on-accent: var(--on-accent);
+  --dotterel-color-surface: var(--surface);
+  --dotterel-color-surface-hover: var(--surface-2);
+  --dotterel-color-text: var(--text);
+  --dotterel-color-text-muted: var(--text-muted);
+  --dotterel-color-border: var(--line-strong);
+  --dotterel-color-border-subtle: var(--line);
+  --dotterel-color-danger: var(--danger);
+  --dotterel-color-danger-surface: var(--danger-soft);
+  --dotterel-color-focus-ring: var(--accent);
+  --dotterel-radius: var(--radius);
+  --dotterel-font-family: var(--font-sans);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #101722;
+    --surface: #18222f;
+    --surface-2: #1f2b3a;
+    --text: #e8e6df;
+    --text-muted: #8b93a1;
+    --accent: #e8a33d;
+    --accent-strong: #f0b45c;
+    --accent-soft: #3a2e1a;
+    --on-accent: #1a1408;
+    --line: #2a3648;
+    --line-strong: #3a4a60;
+    --danger: #e06b5d;
+    --danger-soft: #3a2020;
+    --code-bg: #131c27;
+    --grid-dot: rgb(232 230 223 / 0.06);
+    --mountain-back: #2a3648;
+    --mountain-front: #5d6b80;
+    --snow: #e8e6df;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #101722;
+  --surface: #18222f;
+  --surface-2: #1f2b3a;
+  --text: #e8e6df;
+  --text-muted: #8b93a1;
+  --accent: #e8a33d;
+  --accent-strong: #f0b45c;
+  --accent-soft: #3a2e1a;
+  --on-accent: #1a1408;
+  --line: #2a3648;
+  --line-strong: #3a4a60;
+  --danger: #e06b5d;
+  --danger-soft: #3a2020;
+  --code-bg: #131c27;
+  --grid-dot: rgb(232 230 223 / 0.06);
+  --mountain-back: #2a3648;
+  --mountain-front: #5d6b80;
+  --snow: #e8e6df;
+}
+
+/* ==================================================================
+ * ベース
+ * ================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--bg);
+  /* 地図の方眼のような、ごく薄いドット */
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+  background-size: 16px 16px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.75;
+  display: flex;
+  flex-direction: column;
+}
+
+/* dotterel のボタン型リンクは自前の配色を使う（レイヤー外のこの指定に負けないよう除外） */
+a:where(:not(.dotterel-button)) {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+a:where(:not(.dotterel-button)):hover {
+  color: var(--accent-strong);
+}
+
+a.dotterel-button {
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.4;
+  margin: 0;
+}
+
+code,
+pre,
+kbd,
+.cm-editor {
+  font-family: var(--font-mono);
+  /* >= や <> を合字にしない（SQL の記号をそのまま見せる） */
+  font-variant-ligatures: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:where(:not(.dotterel-button)) {
+  font: inherit;
+  color: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.dot-num {
+  font-family: var(--dotterel-font-family-dot);
+  font-synthesis: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+/* 静的ページの本文幅 */
+.page {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-lead {
+  color: var(--text-muted);
+  margin: 0 0 32px;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+/* Markdown を描画した本文（問題文・ヒント・解説） */
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose > :last-child {
+  margin-bottom: 0;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 12px;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose code {
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+.prose pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.prose table {
+  border-collapse: collapse;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+}
+.prose strong {
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 小さな数値はドット書体にせず、等幅数字で読みやすく */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}

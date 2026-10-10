@@ -1,0 +1,21 @@
+{
+  "id": "0004",
+  "title": "1900m 以上の高い山",
+  "grade": 500,
+  "altitude": 170,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、`altitude` が `1900` 以上の山を取り出してください。\n\n- 列：`name`、`altitude`\n- 並び順：問わない",
+  "hints": [
+    "すべての行ではなく、条件に合う行だけを残します。条件は「標高が 1900 以上」です。",
+    "行を絞り込むには `WHERE` を使います。「以上」は `>=` で表します（`>` だと 1900 ちょうどが外れます）。",
+    "`SELECT 列1, 列2 FROM テーブル名 WHERE 列 >= 値;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT name, altitude FROM mountains WHERE altitude >= 1900;",
+    "explanation": "```sql\nSELECT name, altitude FROM mountains WHERE altitude >= 1900;\n```\n\n- `SELECT name, altitude` … 山名と標高をこの順で\n- `FROM mountains` … `mountains` テーブルから\n- `WHERE altitude >= 1900` … 標高が 1900 以上の行だけを残す\n\n比較演算子は `=`（等しい）、`<>`（等しくない）、`<`・`<=`・`>`・`>=` が基本です。「以上」「以下」はその値を含み、「より大きい」「未満」は含みません。日本語の言い回しと記号の対応は、取り違えやすいところです。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

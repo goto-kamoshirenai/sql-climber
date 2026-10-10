@@ -1,0 +1,21 @@
+{
+  "id": "0020",
+  "title": "高さで山を三つに分ける",
+  "grade": 1500,
+  "altitude": 1330,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルの山を、`altitude` で次の3区分に分け、区分ごとの山の数を求めてください。\n\n| 区分 | 条件 |\n|---|---|\n| `'1500m以上'` | `altitude` が `1500` 以上 |\n| `'1000m台'` | `altitude` が `1000` 以上 `1500` 未満 |\n| `'1000m未満'` | `altitude` が `1000` 未満 |\n\n- 列：区分名（表の文字列のまま）、山の数\n- 並び順：問わない",
+  "hints": [
+    "まず1座ずつ、標高から区分名を決めます。そのうえで、区分名ごとにまとめて数えます。",
+    "条件によって値を切り替えるには `CASE WHEN 条件 THEN 値 … ELSE 値 END` を使います。`WHEN` は上から順に調べられ、最初に当てはまったものが採用されます。",
+    "`SELECT CASE WHEN altitude >= … THEN '…' WHEN … THEN '…' ELSE '…' END AS 区分, COUNT(*) FROM mountains GROUP BY … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT CASE WHEN altitude >= 1500 THEN '1500m以上' WHEN altitude >= 1000 THEN '1000m台' ELSE '1000m未満' END AS altitude_band, COUNT(*) AS mountain_count FROM mountains GROUP BY CASE WHEN altitude >= 1500 THEN '1500m以上' WHEN altitude >= 1000 THEN '1000m台' ELSE '1000m未満' END;",
+    "explanation": "```sql\nSELECT CASE\n         WHEN altitude >= 1500 THEN '1500m以上'\n         WHEN altitude >= 1000 THEN '1000m台'\n         ELSE '1000m未満'\n       END AS altitude_band,\n       COUNT(*) AS mountain_count\nFROM mountains\nGROUP BY CASE\n           WHEN altitude >= 1500 THEN '1500m以上'\n           WHEN altitude >= 1000 THEN '1000m台'\n           ELSE '1000m未満'\n         END;\n```\n\n- `CASE … END` … 1行ずつ標高を調べ、区分名に置き換える\n- `GROUP BY CASE … END` … 置き換えた区分名ごとにグループに分ける\n- `COUNT(*)` … 区分ごとの山の数\n\n`CASE` の `WHEN` は上から順に評価され、最初に真になったところで決まります。そのため2つ目の条件は `altitude >= 1000` だけで「1000 以上 1500 未満」を表せます。順番を入れ替えて `>= 1000` を先に書くと、1500m 以上の山まで `1000m台` に入ってしまいます。\n\n別解として、`GROUP BY altitude_band` のように `SELECT` の別名でまとめることも、SQLite と PostgreSQL ではできます。ただしこれは標準 SQL ではなく、使えないデータベースもあるので、式をそのまま書く形を覚えておくと確実です。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

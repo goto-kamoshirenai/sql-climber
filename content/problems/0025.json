@@ -1,0 +1,21 @@
+{
+  "id": "0025",
+  "title": "小屋のない山",
+  "grade": 2500,
+  "altitude": 1950,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "山小屋が1軒も登録されていない山を取り出してください。\n\n- 列：`mountains.name`、`mountains.altitude`\n- 並び順：問わない\n- 補足：`LEFT JOIN` の練習です",
+  "hints": [
+    "山の表を左に置き、小屋の表を外部結合すると、小屋のない山は「小屋側の列がすべて NULL の行」として残ります。その行だけを選べば答えになります。",
+    "`LEFT JOIN` で結び、`WHERE 小屋側の列 IS NULL` で絞ります。NULL の判定に `= NULL` は使えません。",
+    "`SELECT m.name, m.altitude FROM mountains AS m LEFT JOIN huts AS h ON ___ WHERE ___ IS NULL;`"
+  ],
+  "answer": {
+    "sql": "SELECT m.name, m.altitude FROM mountains AS m LEFT JOIN huts AS h ON h.mountain_id = m.id WHERE h.id IS NULL;",
+    "explanation": "```sql\nSELECT m.name, m.altitude\nFROM mountains AS m\nLEFT JOIN huts AS h ON h.mountain_id = m.id\nWHERE h.id IS NULL;\n```\n\n- `FROM mountains AS m LEFT JOIN huts AS h` … 山はすべて残す。相手の小屋が見つからない山は、小屋側の列を NULL で埋めて1行にする\n- `WHERE h.id IS NULL` … 小屋側が NULL の行、つまり「相手のいなかった山」だけを残す\n\n`INNER JOIN` だと、小屋のない山は結合の時点で消えてしまうので、この問いには答えられません。\n\n判定に使う列は、もともと NULL になり得ない列（ここでは主キーの `h.id`）を選ぶのが定石です。NULL を許す列で判定すると、「相手はいたが値が空だった」行と区別がつかなくなります。\n\n別解として `NOT EXISTS` でも書けます（このあと登場します）。\n\n```sql\nSELECT m.name, m.altitude FROM mountains AS m\nWHERE NOT EXISTS (SELECT 1 FROM huts AS h WHERE h.mountain_id = m.id);\n```",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

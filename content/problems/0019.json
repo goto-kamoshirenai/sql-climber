@@ -1,0 +1,21 @@
+{
+  "id": "0019",
+  "title": "山岳会ごとの人数",
+  "grade": 1500,
+  "altitude": 1210,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climbers` テーブルを `club` ごとにまとめ、人数を数えてください。\n\n- 列：山岳会名、人数\n- 並び順：問わない\n- 補足：`club` が `NULL` の登山者は、山岳会名を `'所属なし'` という文字列にして1つのグループにまとめる",
+  "hints": [
+    "NULL をそのまま出すのではなく、「所属なし」という値に置き換えてからグループにまとめます。",
+    "`COALESCE(列, 代わりの値)` は、列が NULL のときだけ代わりの値を返します。`GROUP BY` にも同じ式を書けます。",
+    "`SELECT COALESCE(club, '…') AS 山岳会, COUNT(*) FROM climbers GROUP BY … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT COALESCE(club, '所属なし') AS club_name, COUNT(*) AS member_count FROM climbers GROUP BY COALESCE(club, '所属なし');",
+    "explanation": "```sql\nSELECT COALESCE(club, '所属なし') AS club_name,\n       COUNT(*) AS member_count\nFROM climbers\nGROUP BY COALESCE(club, '所属なし');\n```\n\n- `COALESCE(club, '所属なし')` … club が NULL なら `'所属なし'`、そうでなければ club の値そのもの\n- `GROUP BY COALESCE(club, '所属なし')` … 置き換えた後の値でグループに分ける\n- `COUNT(*)` … グループごとの人数\n\n`GROUP BY club` のままでも NULL の人は1つのグループにまとまりますが、山岳会名の列が空欄（NULL）で表示され、表として読みにくくなります。\n\nなお、`COUNT(*)` は行を数えますが、`COUNT(club)` は NULL を数えません。`COUNT(club)` と書くと「所属なし」の人数が 0 になってしまいます。集計関数と NULL の関係は、この帯でいちばん間違えやすいところです。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

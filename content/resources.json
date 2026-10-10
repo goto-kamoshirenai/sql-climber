@@ -1,0 +1,69 @@
+{
+  "categories": [
+    {
+      "id": "books",
+      "title": "書籍",
+      "lead": "手元に1冊あると、迷ったときに戻れる場所になります。版は最新のものを確かめてください。",
+      "items": [
+        {
+          "title": "スッキリわかるSQL入門",
+          "by": "中山清喬・飯田理恵子 著（インプレス）",
+          "note": "はじめての1冊に。SELECT の基本から、つまずきやすい点まで丁寧に解説されています。"
+        },
+        {
+          "title": "SQL ゼロからはじめるデータベース操作",
+          "by": "ミック 著（翔泳社）",
+          "note": "手を動かしながら学べる入門書。この問題集の〜1500m級までの内容をひととおり扱っています。"
+        },
+        {
+          "title": "達人に学ぶSQL徹底指南書",
+          "by": "ミック 著（翔泳社）",
+          "note": "CASE 式や自己結合、ウィンドウ関数を深く知りたくなったら。3776m級を登り終えた方に。"
+        },
+        {
+          "title": "SQLアンチパターン",
+          "by": "Bill Karwin 著（オライリー・ジャパン）",
+          "note": "テーブル設計で陥りがちな失敗とその対策。書けるようになった先の一冊です。"
+        }
+      ]
+    },
+    {
+      "id": "sites",
+      "title": "練習に使えるサイト",
+      "lead": "ほかのデータで試したくなったときに。",
+      "items": [
+        {
+          "title": "DB Fiddle",
+          "by": "db-fiddle.com",
+          "url": "https://www.db-fiddle.com/",
+          "note": "ブラウザで PostgreSQL や MySQL、SQLite を試せます。自分でテーブルを作って実験するのに便利です。"
+        },
+        {
+          "title": "Use The Index, Luke!",
+          "by": "Markus Winand",
+          "url": "https://use-the-index-luke.com/ja",
+          "note": "インデックスと SQL の性能についての解説。日本語訳があります。"
+        }
+      ]
+    },
+    {
+      "id": "docs",
+      "title": "公式ドキュメント",
+      "lead": "細かい仕様に迷ったら、最後はここを見ます。",
+      "items": [
+        {
+          "title": "PostgreSQL 日本語ドキュメント",
+          "by": "日本PostgreSQLユーザ会",
+          "url": "https://www.postgresql.jp/document/",
+          "note": "PostgreSQL の公式マニュアルの日本語訳。関数の一覧を引くときに重宝します。"
+        },
+        {
+          "title": "SQL As Understood By SQLite",
+          "by": "sqlite.org",
+          "url": "https://www.sqlite.org/lang.html",
+          "note": "SQLite が受け付ける SQL の構文一覧（英語）。構文図がわかりやすくまとまっています。"
+        }
+      ]
+    }
+  ]
+}

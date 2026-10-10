@@ -1,0 +1,21 @@
+{
+  "id": "0035",
+  "title": "クラブ別の登頂と撤退",
+  "grade": 3776,
+  "altitude": 3100,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`climbers.club` ごとに、山頂に届いた記録と途中で引き返した記録の件数を求めてください。\n\n- 列：クラブ名、山頂に届いた記録（`reached_summit` が `1`）の件数、引き返した記録（`reached_summit` が `0`）の件数\n- 並び順：問わない\n- 補足：`club` が `NULL` の登山者は、クラブ名を `'無所属'` として1行にまとめる。登山記録のない登山者は数えない",
+  "hints": [
+    "記録に登山者を結べば、各記録にクラブが付きます。クラブごとにまとめ、記録を「登頂」と「引き返し」に振り分けて数えます。NULL のクラブは、まとめる前に「無所属」という名前に置き換えます。",
+    "`CASE WHEN 条件 THEN 1 ELSE 0 END` を `SUM` すると、条件に合う行の数になります。クラブ名の置き換えも `CASE WHEN club IS NULL THEN ... ELSE ... END` で書けます。",
+    "`SELECT CASE WHEN ___ THEN '無所属' ELSE ___ END, SUM(CASE WHEN ___ THEN 1 ELSE 0 END), SUM(CASE WHEN ___ THEN 1 ELSE 0 END) FROM climbers AS c INNER JOIN climb_records AS cr ON ___ GROUP BY ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT CASE WHEN c.club IS NULL THEN '無所属' ELSE c.club END, SUM(CASE WHEN cr.reached_summit = 1 THEN 1 ELSE 0 END), SUM(CASE WHEN cr.reached_summit = 0 THEN 1 ELSE 0 END) FROM climbers AS c INNER JOIN climb_records AS cr ON cr.climber_id = c.id GROUP BY CASE WHEN c.club IS NULL THEN '無所属' ELSE c.club END;",
+    "explanation": "```sql\nSELECT CASE WHEN c.club IS NULL THEN '無所属' ELSE c.club END,\n       SUM(CASE WHEN cr.reached_summit = 1 THEN 1 ELSE 0 END),\n       SUM(CASE WHEN cr.reached_summit = 0 THEN 1 ELSE 0 END)\nFROM climbers AS c\nINNER JOIN climb_records AS cr ON cr.climber_id = c.id\nGROUP BY CASE WHEN c.club IS NULL THEN '無所属' ELSE c.club END;\n```\n\n- `INNER JOIN` … 記録に登山者を付ける。記録のない人はここで外れる\n- `GROUP BY CASE ... END` … NULL を「無所属」に置き換えた値でまとめる。`SELECT` と同じ式を書く\n- `SUM(CASE WHEN cr.reached_summit = 1 THEN 1 ELSE 0 END)` … 登頂の記録なら 1、それ以外は 0 として足す。つまり登頂の件数\n- 引き返しの件数も同じ形で、条件だけを変える\n\n`CASE` で 1 と 0 に振り分けてから `SUM` する形は、「1回の集計で、条件ごとの件数を横に並べる」ための定番です。条件が増えても列を足すだけで済みます。\n\nクラブ名の置き換えは `COALESCE(c.club, '無所属')` でも書けます。`SELECT` だけ置き換えて `GROUP BY c.club` のままにしても結果は同じになりますが、まとめる単位と表示する値を揃えておくほうが、読み手に意図が伝わります。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

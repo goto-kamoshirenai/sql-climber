@@ -1,0 +1,21 @@
+{
+  "id": "0031",
+  "title": "山ごとの最も高い小屋",
+  "grade": 3776,
+  "altitude": 2600,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "山ごとに、`huts.altitude` が最も高い山小屋を取り出してください。\n\n- 列：`mountains.name`、`huts.name`、`huts.altitude`\n- 並び順：問わない\n- 補足：山小屋のない山は含めない",
+  "hints": [
+    "小屋1軒ずつについて「この小屋の標高は、同じ山の小屋の中で最大か」を確かめれば、各山の最高所の小屋だけが残ります。",
+    "相関サブクエリを使います。サブクエリの中で外側の小屋の `mountain_id` を参照し、同じ山の小屋に限った `MAX(altitude)` を求めます。",
+    "`SELECT m.name, h.name, h.altitude FROM huts AS h INNER JOIN mountains AS m ON ___ WHERE h.altitude = (SELECT MAX(___) FROM huts AS h2 WHERE ___ = ___);`"
+  ],
+  "answer": {
+    "sql": "SELECT m.name, h.name, h.altitude FROM huts AS h INNER JOIN mountains AS m ON m.id = h.mountain_id WHERE h.altitude = (SELECT MAX(h2.altitude) FROM huts AS h2 WHERE h2.mountain_id = h.mountain_id);",
+    "explanation": "```sql\nSELECT m.name, h.name, h.altitude\nFROM huts AS h\nINNER JOIN mountains AS m ON m.id = h.mountain_id\nWHERE h.altitude = (\n  SELECT MAX(h2.altitude)\n  FROM huts AS h2\n  WHERE h2.mountain_id = h.mountain_id\n);\n```\n\n- 外側の `huts AS h` … いま調べている小屋\n- 内側の `huts AS h2` … 比べる相手。`h2.mountain_id = h.mountain_id` で「同じ山の小屋」に限る\n- `h.altitude = (SELECT MAX(...))` … 同じ山の中で最も高ければ残す\n\n内側のサブクエリが外側の行（`h.mountain_id`）を参照している点が、これまでのサブクエリとの違いです。外側の行が変わるたびに答えが変わるので、相関サブクエリと呼びます。\n\n同じ表を内と外で使うので、別名（`h` と `h2`）を分けることが欠かせません。内側の条件を書き忘れると、全小屋の最大値（富士山頂の小屋）とだけ比べることになり、1行しか残りません。\n\n富士山には小屋が2軒ありますが、残るのは頂上の小屋だけです。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

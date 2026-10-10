@@ -1,0 +1,21 @@
+{
+  "id": "0030",
+  "title": "平均より長い道",
+  "grade": 2500,
+  "altitude": 2450,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "`routes` テーブルから、`distance_km` が全ルートの平均より長いルートを取り出してください。\n\n- 列：`name`、`distance_km`\n- 並び順：`distance_km` の長い順。同じ距離は `id` の小さい順",
+  "hints": [
+    "まず「全ルートの平均距離」という1つの値を求め、それと各ルートの距離を比べます。",
+    "`WHERE` の中に `(SELECT AVG(...) FROM ...)` と、1つの値を返すサブクエリ（スカラーサブクエリ）を書けます。`WHERE distance_km > AVG(distance_km)` は書けません。",
+    "`SELECT name, distance_km FROM routes WHERE distance_km > (SELECT ___ FROM ___) ORDER BY ___ DESC, ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT name, distance_km FROM routes WHERE distance_km > (SELECT AVG(distance_km) FROM routes) ORDER BY distance_km DESC, id;",
+    "explanation": "```sql\nSELECT name, distance_km\nFROM routes\nWHERE distance_km > (SELECT AVG(distance_km) FROM routes)\nORDER BY distance_km DESC, id;\n```\n\n- `(SELECT AVG(distance_km) FROM routes)` … 全ルートの平均距離。ちょうど 15.0km になる\n- `WHERE distance_km > (...)` … 各ルートの距離をその値と比べる\n- `ORDER BY distance_km DESC, id` … 長い順。念のため id を第2の鍵にしておく\n\n1行1列だけを返すサブクエリは、ふつうの値と同じように比較に使えます。これをスカラーサブクエリと呼びます。\n\n`WHERE distance_km > AVG(distance_km)` がだめなのは、`WHERE` が1行ずつを調べる場所で、表全体の平均はまだ計算されていないからです。「全体の値」が欲しいときは、別の `SELECT` で先に求めておく、と覚えてください。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

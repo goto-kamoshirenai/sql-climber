@@ -1,0 +1,95 @@
+{
+  "id": "high-mountains",
+  "name": "高山データベース",
+  "description": "日本の高い山と登山ルート、山小屋、予約、登山者、登山記録を管理するデータベース。",
+  "tables": [
+    {
+      "name": "mountains",
+      "description": "山の基本情報",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "山ID" },
+        { "name": "name", "type": "TEXT", "description": "山名" },
+        { "name": "altitude", "type": "INTEGER", "description": "標高（m）" },
+        { "name": "range_name", "type": "TEXT", "description": "山域（北アルプス・南アルプス・中央アルプス・八ヶ岳・独立峰）" },
+        { "name": "prefecture", "type": "TEXT", "description": "所在する都道府県（複数にまたがる山は代表の1つ）" }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "name": "routes",
+      "description": "登山ルート。1つの山に複数のルートがある",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "ルートID" },
+        { "name": "mountain_id", "type": "INTEGER", "description": "山ID" },
+        { "name": "name", "type": "TEXT", "description": "ルート名" },
+        { "name": "distance_km", "type": "REAL", "description": "往復の距離（km）" },
+        { "name": "ascent_m", "type": "INTEGER", "description": "累積の登り（m）" },
+        { "name": "level", "type": "TEXT", "description": "難易度（初級・中級・上級）" }
+      ],
+      "foreignKeys": [
+        { "column": "mountain_id", "references": { "table": "mountains", "column": "id" } }
+      ]
+    },
+    {
+      "name": "huts",
+      "description": "山小屋（名称は架空）",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "山小屋ID" },
+        { "name": "mountain_id", "type": "INTEGER", "description": "山ID" },
+        { "name": "name", "type": "TEXT", "description": "山小屋名" },
+        { "name": "altitude", "type": "INTEGER", "description": "山小屋の標高（m）" },
+        { "name": "capacity", "type": "INTEGER", "description": "収容人数" },
+        { "name": "price", "type": "INTEGER", "description": "1泊2食の料金（円）" }
+      ],
+      "foreignKeys": [
+        { "column": "mountain_id", "references": { "table": "mountains", "column": "id" } }
+      ]
+    },
+    {
+      "name": "climbers",
+      "description": "登山者。mentor_id で同じテーブルの師匠を指す",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "登山者ID" },
+        { "name": "name", "type": "TEXT", "description": "氏名" },
+        { "name": "birth_year", "type": "INTEGER", "description": "生まれた年" },
+        { "name": "club", "type": "TEXT", "description": "所属している山岳会（所属なしは NULL）" },
+        { "name": "mentor_id", "type": "INTEGER", "description": "師匠の登山者ID（いなければ NULL）" }
+      ],
+      "foreignKeys": [
+        { "column": "mentor_id", "references": { "table": "climbers", "column": "id" } }
+      ]
+    },
+    {
+      "name": "reservations",
+      "description": "山小屋の予約",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "予約ID" },
+        { "name": "climber_id", "type": "INTEGER", "description": "登山者ID" },
+        { "name": "hut_id", "type": "INTEGER", "description": "山小屋ID" },
+        { "name": "stay_on", "type": "TEXT", "description": "宿泊開始日（YYYY-MM-DD）" },
+        { "name": "nights", "type": "INTEGER", "description": "泊数" },
+        { "name": "status", "type": "TEXT", "description": "状態（確定・キャンセル）" }
+      ],
+      "foreignKeys": [
+        { "column": "climber_id", "references": { "table": "climbers", "column": "id" } },
+        { "column": "hut_id", "references": { "table": "huts", "column": "id" } }
+      ]
+    },
+    {
+      "name": "climb_records",
+      "description": "登山記録。1回の山行が1行",
+      "columns": [
+        { "name": "id", "type": "INTEGER", "pk": true, "description": "記録ID" },
+        { "name": "climber_id", "type": "INTEGER", "description": "登山者ID" },
+        { "name": "route_id", "type": "INTEGER", "description": "ルートID" },
+        { "name": "climbed_on", "type": "TEXT", "description": "登山日（YYYY-MM-DD）" },
+        { "name": "duration_min", "type": "INTEGER", "description": "行動時間（分）" },
+        { "name": "reached_summit", "type": "INTEGER", "description": "山頂に着いたか（1: 登頂 / 0: 途中で引き返した）" }
+      ],
+      "foreignKeys": [
+        { "column": "climber_id", "references": { "table": "climbers", "column": "id" } },
+        { "column": "route_id", "references": { "table": "routes", "column": "id" } }
+      ]
+    }
+  ]
+}

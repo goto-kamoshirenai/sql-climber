@@ -1,0 +1,21 @@
+{
+  "id": "0018",
+  "title": "山岳会に入っていない人",
+  "grade": 1500,
+  "altitude": 1120,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climbers` テーブルから、`club` が `NULL` の登山者を取り出してください。\n\n- 列：`name`、`age`\n- 並び順：問わない",
+  "hints": [
+    "「値がない」ことを表す NULL は、ふつうの値とは比べ方が違います。",
+    "NULL かどうかを調べるには `IS NULL` を使います。`= NULL` と書いても、1行も一致しません。",
+    "`SELECT … FROM climbers WHERE 列 IS … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT name, age FROM climbers WHERE club IS NULL;",
+    "explanation": "```sql\nSELECT name, age FROM climbers WHERE club IS NULL;\n```\n\n- `WHERE club IS NULL` … 山岳会の列に値が入っていない行を残す\n\nNULL は「値が分からない・存在しない」という印で、空文字 `''` や 0 とは別物です。`club = NULL` の比較は真にも偽にもならず「不明」になるため、どの行も条件を満たしません。NULL を探すときは `IS NULL`、NULL でない行を探すときは `IS NOT NULL` と書きます。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

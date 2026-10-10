@@ -1,0 +1,21 @@
+{
+  "id": "0038",
+  "title": "標高ランキング",
+  "grade": 3776,
+  "altitude": 3500,
+  "dataset": {
+    "ref": "high-mountains"
+  },
+  "statement": "山を `altitude` の高い順に順位付けし、5位以内の山を取り出してください。\n\n- 列：順位、`name`、`altitude`\n- 並び順：順位の小さい順。同じ順位は `id` の小さい順\n- 補足：標高が同じ山は同じ順位とし、次の順位はその数だけ飛ばす（3位が2つなら次は5位）",
+  "hints": [
+    "同じ値に同じ順位を付け、次の順位を飛ばす。これは競技の順位と同じ数え方です。順位を付けた後で 5位以内に絞ります。",
+    "`RANK() OVER (ORDER BY altitude DESC)` がこの数え方です。`ROW_NUMBER` だと同じ標高にも別々の番号が付いてしまいます。順位で絞るには、`FROM` 句のサブクエリに入れます。",
+    "`SELECT t.rnk, t.name, t.altitude FROM (SELECT id, name, altitude, RANK() OVER (ORDER BY ___) AS rnk FROM mountains) AS t WHERE ___ ORDER BY ___, ___;`"
+  ],
+  "answer": {
+    "sql": "SELECT t.rnk, t.name, t.altitude FROM (SELECT id, name, altitude, RANK() OVER (ORDER BY altitude DESC) AS rnk FROM mountains) AS t WHERE t.rnk <= 5 ORDER BY t.rnk, t.id;",
+    "explanation": "```sql\nSELECT t.rnk, t.name, t.altitude\nFROM (\n  SELECT id, name, altitude,\n         RANK() OVER (ORDER BY altitude DESC) AS rnk\n  FROM mountains\n) AS t\nWHERE t.rnk <= 5\nORDER BY t.rnk, t.id;\n```\n\n- `RANK() OVER (ORDER BY altitude DESC)` … 標高の高い順の順位。同じ標高には同じ順位が付き、次は飛ぶ\n- サブクエリに `id` も入れておく … 外側の `ORDER BY` で同順位の並びを決めるため\n- `WHERE t.rnk <= 5` … 5位以内に絞る\n\n間ノ岳と奥穂高岳はどちらも 3190m で、ともに 3位です。次の槍ヶ岳は 4位ではなく 5位になります。\n\n`ROW_NUMBER` を使うと、同じ標高の2山が 3位と 4位に分かれ、どちらが上になるかも決まりません。同点を同点として扱いたいときは `RANK` を選びます。\n\n`ORDER BY altitude DESC LIMIT 5` でも、たまたま同じ5山が出ます。しかし順位の列は作れませんし、5位に同点の山が複数あった場合には取りこぼしが出ます。「5件」と「5位以内」は別の問いです。",
+    "orderSensitive": true,
+    "verifyQuery": null
+  }
+}

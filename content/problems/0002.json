@@ -1,0 +1,21 @@
+{
+  "id": "0002",
+  "title": "山名と標高だけを見る",
+  "grade": 500,
+  "altitude": 80,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、山名と標高を取り出してください。\n\n- 列：`name`、`altitude`\n- 並び順：問わない\n- 補足：列に `山名`・`標高` という別名を付けてみてください（列名は判定に影響しません）",
+  "hints": [
+    "すべての列ではなく、必要な列だけを選びます。列を書く順番が、そのまま結果の列の順番になります。",
+    "`SELECT` の後ろに列名をカンマ区切りで並べます。列の後ろに `AS 別名` と書くと、結果の列名を付け替えられます。",
+    "`SELECT 列1 AS 別名1, 列2 AS 別名2 FROM テーブル名;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT name AS 山名, altitude AS 標高 FROM mountains;",
+    "explanation": "```sql\nSELECT name AS 山名, altitude AS 標高 FROM mountains;\n```\n\n- `SELECT name AS 山名, altitude AS 標高` … 山名と標高の2列だけを、この順で取り出し、結果の列名を付け替える\n- `FROM mountains` … `mountains` テーブルから\n\n列の順番は `SELECT` に書いた順で決まります。`altitude, name` と書けば標高が先に来て、この問題では不正解になります。\n\n`AS` は結果の見出しを変えるだけで、テーブルの列名そのものは変わりません。`name 山名` のように `AS` を省いても同じ意味になりますが、読みやすさのために書いておくのが無難です。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

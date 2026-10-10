@@ -1,0 +1,21 @@
+{
+  "id": "0001",
+  "title": "すべての山を眺める",
+  "grade": 500,
+  "altitude": 40,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルのすべての列・すべての行を取り出してください。\n\n- 並び順：問わない",
+  "hints": [
+    "テーブルの中身をそのまま見たいときは、列をひとつずつ書かなくても「すべての列」を表す書き方があります。",
+    "`SELECT` の後ろに `*`（アスタリスク）を書くと、すべての列を意味します。`FROM` の後ろにはテーブル名を書きます。",
+    "`SELECT * FROM テーブル名;` の形です。テーブル名を当てはめてください。"
+  ],
+  "answer": {
+    "sql": "SELECT * FROM mountains;",
+    "explanation": "```sql\nSELECT * FROM mountains;\n```\n\n- `SELECT *` … すべての列を取り出す\n- `FROM mountains` … `mountains` テーブルから\n\nSQL の基本形は「`SELECT` 何を `FROM` どこから」です。`*` は手早く中身を確かめるときに便利ですが、実際のアプリケーションでは必要な列だけを書くのがふつうです。列が増えたときに余計なデータまで運んでしまうのを避けるためです。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

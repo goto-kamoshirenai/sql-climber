@@ -1,0 +1,21 @@
+{
+  "id": "0007",
+  "title": "五月の山行記録",
+  "grade": 500,
+  "altitude": 310,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルから、`climbed_on` が `'2024-05-01'` 〜 `'2024-05-31'`（両端を含む）の記録を取り出してください。\n\n- 列：`id`、`climber_id`、`climbed_on`\n- 並び順：問わない\n- 補足：`climbed_on` は `'YYYY-MM-DD'` 形式の文字列です",
+  "hints": [
+    "「ある値からある値まで」の範囲に入る行を探します。日付は `'YYYY-MM-DD'` 形式の文字列なので、文字列として大小を比べれば日付の前後と一致します。",
+    "`BETWEEN 下限 AND 上限` を使うと、両端を含む範囲を1つの条件で書けます。",
+    "`SELECT … FROM climb_records WHERE climbed_on BETWEEN '…' AND '…';` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT id, climber_id, climbed_on FROM climb_records WHERE climbed_on BETWEEN '2024-05-01' AND '2024-05-31';",
+    "explanation": "```sql\nSELECT id, climber_id, climbed_on\nFROM climb_records\nWHERE climbed_on BETWEEN '2024-05-01' AND '2024-05-31';\n```\n\n- `SELECT id, climber_id, climbed_on` … 記録ID・登山者ID・登山日をこの順で\n- `WHERE climbed_on BETWEEN '2024-05-01' AND '2024-05-31'` … 5月1日から5月31日まで（両端を含む）の記録を残す\n\n`BETWEEN a AND b` は `列 >= a AND 列 <= b` と同じ意味で、**両端を含みます**。\n\n日付を文字列で比べてよいのは、年・月・日を桁をそろえて上位から並べた形だからです。`'2024-5-3'` のように桁がそろっていないと、文字列の大小と日付の前後がずれてしまいます。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "0014",
+  "title": "登山者の年齢をならす",
+  "grade": 1500,
+  "altitude": 770,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climbers` テーブルの全登山者について、`age` の平均・最小値・最大値を求めてください。\n\n- 列：平均、最小値、最大値\n- 結果：1行\n- 補足：平均は `ROUND(値, 1)` で小数第1位に丸める",
+  "hints": [
+    "全員の年齢から、平均・最小・最大の3つの値を求めて横に並べます。",
+    "平均は `AVG(列)`、最小は `MIN(列)`、最大は `MAX(列)` です。小数第1位に丸めるには `ROUND(値, 1)` で包みます。",
+    "`SELECT ROUND(AVG(…), 1), MIN(…), MAX(…) FROM … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT ROUND(AVG(age), 1) AS avg_age, MIN(age) AS youngest, MAX(age) AS oldest FROM climbers;",
+    "explanation": "```sql\nSELECT ROUND(AVG(age), 1) AS avg_age,\n       MIN(age) AS youngest,\n       MAX(age) AS oldest\nFROM climbers;\n```\n\n- `ROUND(AVG(age), 1)` … 年齢の平均を求め、小数第1位に丸める\n- `MIN(age)` / `MAX(age)` … 最も若い年齢と、最も年長の年齢\n\n`AVG` の結果は割り切れないことが多く、そのままだと桁の長い小数になります。どこで丸めるかを決めて `ROUND` で包むのが作法です。\n\n`MIN` と `MAX` が返すのは年齢の値だけで、それが誰なのかまでは教えてくれません。人の名前と一緒に知りたいときは、別の書き方（並べ替えて `LIMIT` する、サブクエリを使う など）が要ります。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

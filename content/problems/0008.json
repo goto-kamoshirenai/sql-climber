@@ -1,0 +1,21 @@
+{
+  "id": "0008",
+  "title": "「岳」で終わる山",
+  "grade": 500,
+  "altitude": 350,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`mountains` テーブルから、`name` が `岳` で終わる山を取り出してください。\n\n- 列：`name`、`prefecture`\n- 並び順：問わない\n- 補足：途中に「岳」を含むだけで、最後の文字が「岳」でない山は含めない",
+  "hints": [
+    "名前の一部が決まった形になっている行を探します。「最後が岳」であって、「岳より前」は何文字でも構いません。",
+    "文字列のパターン一致には `LIKE` を使います。`%` は「0文字以上の任意の文字列」を表します。",
+    "`SELECT … FROM mountains WHERE name LIKE '…';` の形です。`%` を「岳」の前に置くか後ろに置くかを考えてください。"
+  ],
+  "answer": {
+    "sql": "SELECT name, prefecture FROM mountains WHERE name LIKE '%岳';",
+    "explanation": "```sql\nSELECT name, prefecture FROM mountains WHERE name LIKE '%岳';\n```\n\n- `SELECT name, prefecture` … 山名と都道府県をこの順で\n- `WHERE name LIKE '%岳'` … 「岳」の前に何があってもよく、最後が「岳」で終わる名前\n\n`LIKE` のパターンでは、`%` が任意の長さの文字列、`_` がちょうど1文字を表します。\n\n`'%岳%'` と書くと「岳をどこかに含む」になり、御岳山まで拾ってしまいます。`%` の位置で意味が変わる点を押さえておいてください。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}

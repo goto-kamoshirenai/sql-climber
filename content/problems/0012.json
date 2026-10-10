@@ -1,0 +1,21 @@
+{
+  "id": "0012",
+  "title": "山頂に立った回数",
+  "grade": 1500,
+  "altitude": 610,
+  "dataset": {
+    "ref": "base-camp"
+  },
+  "statement": "`climb_records` テーブルから、`reached_summit` が `1` の記録の件数を求めてください。\n\n- 結果：1行1列",
+  "hints": [
+    "まず条件に合う行に絞り込み、残った行の数を数えます。",
+    "行の数を数えるには集計関数 `COUNT(*)` を使います。絞り込みはこれまでどおり `WHERE` です。",
+    "`SELECT COUNT(*) FROM climb_records WHERE … ;` の形です。"
+  ],
+  "answer": {
+    "sql": "SELECT COUNT(*) AS summit_count FROM climb_records WHERE reached_summit = 1;",
+    "explanation": "```sql\nSELECT COUNT(*) AS summit_count\nFROM climb_records\nWHERE reached_summit = 1;\n```\n\n- `WHERE reached_summit = 1` … 先に、登頂した記録だけに絞る\n- `COUNT(*)` … 残った行の数を数える\n\n`WHERE` は集計の **前** に行を絞ります。全30件のうち、途中で引き返した4件を除いた26件が数えられます。\n\n集計関数を使うと、たくさんの行が1行の結果にまとめられます。`SELECT id, COUNT(*)` のように、集計しない列を並べて書くことはできない（または意味のない値になる）点に注意してください。",
+    "orderSensitive": false,
+    "verifyQuery": null
+  }
+}
