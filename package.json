@@ -28,11 +28,11 @@
     "@lezer/highlight": "1.2.5",
     "dotterel-ui": "0.7.1",
     "marked": "18.1.0",
-    "next": "16.4.0",
+    "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "sql.js": "1.14.2",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",
@@ -42,7 +42,7 @@
     "@types/sql.js": "1.4.11",
     "beautiful-mermaid": "1.1.3",
     "eslint": "9.39.2",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "prettier": "3.9.9",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
