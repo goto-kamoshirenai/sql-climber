@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MountainArt } from "@/components/dot-art";
 import { ProblemList } from "@/components/problem-list";
 import { GRADES, GRADE_INFO, isGrade } from "@/features/problem/grades";
 
@@ -35,10 +36,16 @@ export default async function ProblemsPage({ params }: { params: Promise<{ grade
       <p className="breadcrumb">
         <Link href="/">山を選ぶ</Link> <span aria-hidden>/</span> {info.label}
       </p>
-      <h1 className="page-title">
-        <span className="dot-num">{grade.toLocaleString("ja-JP")}M</span> {info.label}
-      </h1>
-      <p className="page-lead">{info.summary}。標高の低い問題から順に並んでいます。</p>
+      <header className="grade-head">
+        <div>
+          <p className="grade-head__alt">
+            {info.min.toLocaleString("ja-JP")}m – {grade.toLocaleString("ja-JP")}m
+          </p>
+          <h1 className="page-title">{info.label}</h1>
+          <p className="page-lead">{info.summary}。標高の低い問題から順に登ります。</p>
+        </div>
+        <MountainArt level={index as 0 | 1 | 2 | 3} className="grade-head__art" />
+      </header>
 
       <ProblemList grade={grade} />
 

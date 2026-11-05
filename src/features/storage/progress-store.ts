@@ -80,6 +80,10 @@ export function useHydrated(): boolean {
 const noopSubscribe = () => () => {};
 
 export const progressActions = {
+  /** 今の記録（イベントハンドラの中で、描画を待たずに読むとき用） */
+  current(): Progress {
+    return read();
+  },
   submit(problemId: string, altitude: number, correct: boolean): AscentResult {
     const { progress, ascent } = applySubmission(read(), problemId, altitude, correct, new Date());
     write(progress);

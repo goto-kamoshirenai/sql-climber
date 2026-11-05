@@ -10,7 +10,7 @@ test("学習記録を書き出し、消して、読み込み直せる", async ({
   await expect(page.getByRole("heading", { name: "登頂しました" })).toBeVisible();
 
   await page.goto("/mypage");
-  await expect(page.locator(".rank-panel__value")).toContainText("170");
+  await expect(page.locator(".player-card__value")).toContainText("170");
 
   // 書き出し
   const downloadPromise = page.waitForEvent("download");
@@ -23,13 +23,13 @@ test("学習記録を書き出し、消して、読み込み直せる", async ({
   // 全削除
   await page.getByRole("button", { name: "記録をすべて消す" }).click();
   await page.getByRole("button", { name: "消す", exact: true }).click();
-  await expect(page.locator(".rank-panel__value")).toContainText("0");
+  await expect(page.locator(".player-card__value")).toContainText("0");
 
   // 読み込み → 比較して確認 → 置き換え
   await page.locator('input[type="file"]').setInputFiles(file);
   await expect(page.getByRole("alertdialog")).toContainText("0m → 170m");
   await page.getByRole("button", { name: "置き換える" }).click();
-  await expect(page.locator(".rank-panel__value")).toContainText("170");
+  await expect(page.locator(".player-card__value")).toContainText("170");
 });
 
 test("壊れたファイルは読み込まない", async ({ page }) => {

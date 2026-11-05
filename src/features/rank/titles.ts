@@ -30,3 +30,11 @@ export function nextTitle(rank: number): { title: Title; remaining: number } | n
   const next = TITLES.find((t) => t.minRank > rank);
   return next ? { title: next, remaining: next.minRank - rank } : null;
 }
+
+/** 今の称号から次の称号までの進み具合（0〜1）。最高位なら 1 */
+export function titleProgress(rank: number): number {
+  const next = nextTitle(rank);
+  if (!next) return 1;
+  const from = titleFor(rank).minRank;
+  return (rank - from) / (next.title.minRank - from);
+}

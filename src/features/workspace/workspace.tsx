@@ -12,6 +12,9 @@ import { runQuery, submitQuery, type ExecutionOutcome } from "@/features/judge/s
 import { GRADE_INFO } from "@/features/problem/grades";
 import { fetchProblemAnswer, useProblemDetail } from "@/features/problem/api";
 import type { ProblemDetail } from "@/features/problem/schema";
+import { newlyUnlocked } from "@/features/achievements/achievements";
+import { climbStats } from "@/features/achievements/stats";
+import { useClimb } from "@/features/achievements/use-climb";
 import { progressActions, useProgress } from "@/features/storage/progress-store";
 import { InfoPanel, type InfoTab } from "./info-panel";
 import { KeywordBar } from "./keyword-bar";
@@ -57,6 +60,8 @@ function WorkspaceReady({ problem }: { problem: ProblemDetail }) {
   const [hintsOpened, setHintsOpened] = useState(0);
   const [split, setSplit] = useState(45);
   const [slowLoad, setSlowLoad] = useState(false);
+  const [shaking, setShaking] = useState(false);
+  const climb = useClimb();
 
   const status = progress.history[problem.id]?.status;
   const surrendered = status === "surrendered" || status === "solved_after_surrender";
@@ -124,12 +129,24 @@ function WorkspaceReady({ problem }: { problem: ProblemDetail }) {
       setOutcome({ kind: "result", result: result.result, elapsedMs: 0 });
       progressActions.saveDraft(problem.id, sql);
       const surrenderedBefore = status === "surrendered";
+      const before = progressActions.current();
       const ascent = progressActions.submit(problem.id, problem.altitude, result.correct);
-      setOverlay(
-        result.correct
-          ? { kind: "correct", ascent, answer, surrenderedBefore }
-          : { kind: "incorrect" },
-      );
+      if (!result.correct) {
+        setShaking(true);
+        setOverlay({ kind: "incorrect" });
+        return;
+      }
+      const now = new Date();
+      const statsAfter = climbStats(progressActions.current(), climb.problems, now);
+      setOverlay({
+        kind: "correct",
+        ascent,
+        answer,
+        surrenderedBefore,
+        firstTry: ascent.firstAscent && (before.history[problem.id]?.attempts ?? 0) === 0,
+        unlocked: newlyUnlocked(climbStats(before, climb.problems, now), statsAfter),
+        streak: statsAfter.currentStreak,
+      });
     } catch (error) {
       setOutcome({
         kind: "sql_error",
@@ -226,6 +243,9 @@ function WorkspaceReady({ problem }: { problem: ProblemDetail }) {
               title="実行（Ctrl + Enter）"
             >
               実行
+              <kbd className="kbd-hint" aria-hidden>
+                Ctrl ↵
+              </kbd>
             </DotButton>
             <DotButton
               variant="primary"
@@ -235,6 +255,9 @@ function WorkspaceReady({ problem }: { problem: ProblemDetail }) {
               title="提出（Ctrl + Shift + Enter）"
             >
               提出
+              <kbd className="kbd-hint" aria-hidden>
+                Ctrl ⇧ ↵
+              </kbd>
             </DotButton>
           </div>
         </div>
@@ -246,16 +269,22 @@ function WorkspaceReady({ problem }: { problem: ProblemDetail }) {
           keepMounted
           className="work-panel work-panel--editor"
         >
-          <SqlEditor
-            ref={editorRef}
-            initialValue={initialSql}
-            dialect={progress.dialect}
-            tables={problem.dataset.tables}
-            onChange={onEditorChange}
-            onRun={run}
-            onSubmit={submit}
-            label={`${problem.title} の回答 SQL`}
-          />
+          <div
+            className="work-panel__shake"
+            data-shake={shaking || undefined}
+            onAnimationEnd={() => setShaking(false)}
+          >
+            <SqlEditor
+              ref={editorRef}
+              initialValue={initialSql}
+              dialect={progress.dialect}
+              tables={problem.dataset.tables}
+              onChange={onEditorChange}
+              onRun={run}
+              onSubmit={submit}
+              label={`${problem.title} の回答 SQL`}
+            />
+          </div>
           <KeywordBar tables={tableNames} onInsert={(text) => editorRef.current?.insert(text)} />
         </TabPanel>
 
@@ -320,6 +349,7 @@ function EngineBadge({
   if (status === "ready" || status === "idle") {
     return (
       <span className="engine-badge" data-status={status}>
+        <span className="engine-badge__dot" aria-hidden />
         {dialect}
       </span>
     );
@@ -327,6 +357,7 @@ function EngineBadge({
   if (status === "error") {
     return (
       <span className="engine-badge" data-status="error" role="alert">
+        <span className="engine-badge__dot" aria-hidden />
         {dialect} を読み込めませんでした（再読み込みしてください）
       </span>
     );

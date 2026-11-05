@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { DotButton } from "dotterel-ui/button";
+import { Icon } from "dotterel-ui/icon";
 import { DotProgress } from "dotterel-ui/progress";
 import { useRef, useState } from "react";
 import { GRADES, GRADE_INFO } from "@/features/problem/grades";
 import { useProblems } from "@/features/problem/api";
 import type { ProblemSummary } from "@/features/problem/schema";
-import { nextTitle, titleFor, TITLES } from "@/features/rank/titles";
+import { ACHIEVEMENTS } from "@/features/achievements/achievements";
+import { useClimb, type Climb } from "@/features/achievements/use-climb";
+import { TITLES } from "@/features/rank/titles";
 import { isSolved, type Progress, type ProblemStatus } from "@/features/storage/progress-schema";
 import {
   parseImport,
@@ -15,6 +18,7 @@ import {
   useHydrated,
   useProgress,
 } from "@/features/storage/progress-store";
+import { PlayerCard } from "./player-card";
 import { DialectSwitch } from "./site-header";
 
 const STATUS_LABEL: Record<ProblemStatus, string> = {
@@ -28,13 +32,16 @@ export function MyPage() {
   const progress = useProgress();
   const hydrated = useHydrated();
   const problems = useProblems();
+  const climb = useClimb();
 
   if (!hydrated) return <p className="muted">記録を読み込んでいます…</p>;
   const list = problems.state === "ready" ? problems.data : [];
 
   return (
     <>
-      <RankPanel rank={progress.rank} />
+      <PlayerCard climb={climb} />
+      <RankRules />
+      <Achievements climb={climb} />
       <GradeProgress progress={progress} problems={list} />
       <History progress={progress} problems={list} />
       <DataTools progress={progress} />
@@ -43,48 +50,52 @@ export function MyPage() {
   );
 }
 
-function RankPanel({ rank }: { rank: number }) {
-  const title = titleFor(rank);
-  const next = nextTitle(rank);
-  const currentMin = title.minRank;
+function RankRules() {
   return (
-    <section className="panel rank-panel" aria-labelledby="rank-title">
-      <h2 id="rank-title" className="rank-panel__label">
-        登山家ランク
+    <details className="rank-rules">
+      <summary>ランクの上がり方</summary>
+      <ul>
+        <li>自分のランクより高い問題に初めて正解すると、その標高までランクが上がります。</li>
+        <li>ランクより低い問題に初めて正解すると、標高の差が大きいほど少しだけ上がります。</li>
+        <li>同じ問題に何度正解しても、上がるのは最初の1回だけです。</li>
+        <li>
+          降参した問題にあとで正解すると、上がり幅は半分になります。ヒントを見ても減りません。
+        </li>
+      </ul>
+      <p className="muted">称号: {TITLES.map((t) => `${t.name}（${t.minRank}m）`).join(" / ")}</p>
+    </details>
+  );
+}
+
+function Achievements({ climb }: { climb: Climb }) {
+  const got = new Set(climb.achievements.map((a) => a.id));
+  return (
+    <section className="section" aria-labelledby="achievements-title">
+      <h2 id="achievements-title" className="section-title">
+        実績{" "}
+        <span className="section-title__count">
+          {got.size} / {ACHIEVEMENTS.length}
+        </span>
       </h2>
-      <p className="rank-panel__value dot-num">{rank.toLocaleString("ja-JP")} M</p>
-      <p className="rank-panel__title">
-        {title.name} <span className="muted">{title.note}</span>
+      <ul className="badges">
+        {ACHIEVEMENTS.map((a) => {
+          const unlocked = got.has(a.id);
+          return (
+            <li key={a.id} className="badge" data-unlocked={unlocked || undefined}>
+              <span className="badge__icon">
+                <Icon name={a.icon} size="md" />
+              </span>
+              <span className="badge__name">{a.name}</span>
+              <span className="badge__desc">{a.description}</span>
+              <span className="visually-hidden">{unlocked ? "（達成）" : "（未達成）"}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="badges__note muted">
+        最長の連続登頂: <span className="num">{climb.stats.bestStreak}</span> 日 ・ 一発登頂:{" "}
+        <span className="num">{climb.stats.firstTry}</span> 問
       </p>
-      {next ? (
-        <div className="rank-panel__next">
-          <DotProgress
-            value={rank - currentMin}
-            max={next.title.minRank - currentMin}
-            count={24}
-            label={`次の称号「${next.title.name}」までの進み具合`}
-            shape="square"
-          />
-          <p className="muted">
-            次の「{next.title.name}」まで あと{" "}
-            <span className="num">{next.remaining.toLocaleString("ja-JP")}</span> m
-          </p>
-        </div>
-      ) : (
-        <p className="muted">世界の頂に立ちました。</p>
-      )}
-      <details className="rank-panel__rules">
-        <summary>ランクの上がり方</summary>
-        <ul>
-          <li>自分のランクより高い問題に初めて正解すると、その標高までランクが上がります。</li>
-          <li>ランクより低い問題に初めて正解すると、標高の差が大きいほど少しだけ上がります。</li>
-          <li>同じ問題に何度正解しても、上がるのは最初の1回だけです。</li>
-          <li>
-            降参した問題にあとで正解すると、上がり幅は半分になります。ヒントを見ても減りません。
-          </li>
-        </ul>
-        <p className="muted">称号: {TITLES.map((t) => `${t.name}（${t.minRank}m）`).join(" / ")}</p>
-      </details>
     </section>
   );
 }
@@ -158,7 +169,11 @@ function History({ progress, problems }: { progress: Progress; problems: Problem
                     <Link href={`/problem/${problem.id}`}>{problem.title}</Link>
                   </td>
                   <td className="num">{problem.altitude}m</td>
-                  <td data-status={entry!.status}>{STATUS_LABEL[entry!.status]}</td>
+                  <td>
+                    <span className="status-pill" data-status={entry!.status}>
+                      {STATUS_LABEL[entry!.status]}
+                    </span>
+                  </td>
                   <td>{entry!.attempts} 回</td>
                   <td>
                     {entry!.solvedAt ? new Date(entry!.solvedAt).toLocaleDateString("ja-JP") : "—"}

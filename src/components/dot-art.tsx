@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { LOGO_CURSOR, LOGO_MOUNTAIN, LOGO_VIEWBOX } from "./brand";
 
 /**
  * ドットで描く山（ドット登山地図の基本モチーフ）。
@@ -20,6 +21,9 @@ function ridge(peakCol: number, peakHeight: number, steepness: number, shoulder:
     return Math.max(0, Math.round(Math.max(main, side)));
   });
 }
+
+/** 難易度帯ごとの森林限界（行数） */
+const TREE_LINES = [5, 5, 4, 3] as const;
 
 const PROFILES = [
   { peak: 6, steep: 0.55, shoulder: 6, back: 4 },
@@ -50,13 +54,21 @@ export function MountainArt({
     { heights: front, className: "dot-art__front" },
   ];
   const snowLine = level >= 2 ? p.peak - (level === 3 ? 4 : 2) : Infinity;
+  // 森林限界: 低い山ほど上まで木が茂る
+  const treeLine = TREE_LINES[level];
 
   const cells: { x: number; y: number; cls: string }[] = [];
   for (const layer of layers) {
     layer.heights.forEach((h, col) => {
       for (let r = 0; r < h; r++) {
-        const isSnow = layer.className === "dot-art__front" && r >= snowLine;
-        cells.push({ x: col, y: ROWS - 1 - r, cls: isSnow ? "dot-art__snow" : layer.className });
+        const front = layer.className === "dot-art__front";
+        const cls =
+          front && r >= snowLine
+            ? "dot-art__snow"
+            : front && r < treeLine - (col % 3 === 0 ? 1 : 0)
+              ? "dot-art__forest"
+              : layer.className;
+        cells.push({ x: col, y: ROWS - 1 - r, cls });
       }
     });
   }
@@ -108,43 +120,18 @@ export function MountainArt({
   );
 }
 
-/** ロゴマーク（9×9 の小さな山と旗） */
-const LOGO = [
-  "......##.",
-  "......###",
-  "......#..",
-  "....#.#..",
-  "...###...",
-  "..#####..",
-  ".#######.",
-  "####.####",
-  "#########",
-];
-
-export function LogoMark({ size = 24 }: { size?: number }) {
+/** ロゴマーク「階段稜線」。形は brand.ts */
+export function LogoMark({ size = 22, className }: { size?: number; className?: string }) {
   return (
     <svg
-      viewBox="0 0 9 9"
+      viewBox={`0 0 ${LOGO_VIEWBOX} ${LOGO_VIEWBOX}`}
       width={size}
       height={size}
       aria-hidden
-      shapeRendering="crispEdges"
-      className="logo-mark"
+      className={`logo-mark ${className ?? ""}`}
     >
-      {LOGO.flatMap((row, y) =>
-        [...row].map((ch, x) =>
-          ch === "#" ? (
-            <rect
-              key={`${x}-${y}`}
-              x={x + 0.08}
-              y={y + 0.08}
-              width={0.84}
-              height={0.84}
-              className={y <= 2 && x >= 6 ? "logo-mark__flag" : "logo-mark__rock"}
-            />
-          ) : null,
-        ),
-      )}
+      <path d={LOGO_MOUNTAIN} className="logo-mark__mountain" />
+      <rect {...LOGO_CURSOR} className="logo-mark__cursor" />
     </svg>
   );
 }

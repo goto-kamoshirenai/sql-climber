@@ -3,15 +3,28 @@
 import Link from "next/link";
 import { DotButton, DotLinkAdapter } from "dotterel-ui/button";
 import { DotCount } from "dotterel-ui/count";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { MountainArt } from "@/components/dot-art";
 import { GRADES } from "@/features/problem/grades";
 import type { ProblemAnswer, ProblemDetail } from "@/features/problem/schema";
 import { nextTitle, titleFor } from "@/features/rank/titles";
+import type { Achievement } from "@/features/achievements/achievements";
 import type { AscentResult } from "@/features/storage/progress-logic";
+import { Icon } from "dotterel-ui/icon";
 
 export type Overlay =
-  | { kind: "correct"; ascent: AscentResult; answer: ProblemAnswer; surrenderedBefore: boolean }
+  | {
+      kind: "correct";
+      ascent: AscentResult;
+      answer: ProblemAnswer;
+      surrenderedBefore: boolean;
+      /** 1回目の提出で登頂した */
+      firstTry: boolean;
+      /** この登頂で新たに達成した実績 */
+      unlocked: Achievement[];
+      /** 連続登頂日数（この登頂を含む） */
+      streak: number;
+    }
   | { kind: "incorrect" }
   | { kind: "confirm-surrender" }
   | { kind: "surrendered"; answer: ProblemAnswer };
@@ -37,7 +50,10 @@ export function ResultOverlay({
 
   useEffect(() => {
     const dialog = ref.current;
-    if (dialog && !dialog.open) dialog.showModal();
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    // autoFocus のボタンへスクロールされるので、見出しが見える位置に戻す
+    dialog.scrollTop = 0;
   }, []);
 
   const level = GRADES.indexOf(problem.grade) as 0 | 1 | 2 | 3;
@@ -150,11 +166,24 @@ function Correct({
 
   return (
     <div className="overlay__body">
-      <MountainArt level={level} flag className="overlay__art" />
+      <div className="celebrate">
+        {ascent.firstAscent && <DotBurst />}
+        <MountainArt level={level} flag className="overlay__art" />
+      </div>
       <p className="overlay__eyebrow">正解</p>
       <h2 id="overlay-title" className="overlay__title">
         {ascent.firstAscent ? "登頂しました" : "正解です"}
       </h2>
+      {(overlay.firstTry || (ascent.firstAscent && overlay.streak >= 2)) && (
+        <ul className="feats">
+          {overlay.firstTry && <li className="feat">一発登頂</li>}
+          {ascent.firstAscent && overlay.streak >= 2 && (
+            <li className="feat feat--streak">
+              <span className="num">{overlay.streak}</span> 日連続
+            </li>
+          )}
+        </ul>
+      )}
 
       <div className="ascent">
         <p className="ascent__label">登山家ランク</p>
@@ -174,7 +203,7 @@ function Correct({
         </p>
         {ascent.firstAscent ? (
           <p className="ascent__gain">
-            <span className="dot-num">+{gain.toLocaleString("ja-JP")} M</span>
+            <span className="ascent__plus">+{gain.toLocaleString("ja-JP")} m</span>
             {overlay.surrenderedBefore && <span className="muted">（降参後のため半分）</span>}
             {gain > 0 && gain < problem.altitude * 0.5 && !overlay.surrenderedBefore && (
               <span className="muted">（すでに越えた高さの山なので、少しだけ上がります）</span>
@@ -184,9 +213,21 @@ function Correct({
           <p className="ascent__gain muted">この問題は登頂済みです。ランクは変わりません。</p>
         )}
         {after.name !== before.name && (counted || !ascent.firstAscent) && (
-          <p className="ascent__title" role="status">
-            称号「{after.name}」を得ました <span className="muted">{after.note}</span>
-          </p>
+          <div className="title-up" role="status">
+            <span className="title-up__icon">
+              <Icon name="crown" size="md" />
+            </span>
+            <span className="title-up__text">
+              <span className="title-up__eyebrow">称号アップ</span>
+              <span className="title-up__names">
+                <span className="title-up__before">{before.name}</span>
+                <span aria-hidden>→</span>
+                <span className="title-up__after">{after.name}</span>
+              </span>
+              <span className="title-up__note">{after.note}</span>
+            </span>
+            <span className="visually-hidden">称号「{after.name}」を得ました</span>
+          </div>
         )}
         {next && (
           <p className="ascent__next muted">
@@ -196,9 +237,26 @@ function Correct({
         )}
       </div>
 
+      {overlay.unlocked.length > 0 && (
+        <section className="unlocks" aria-label="達成した実績">
+          {overlay.unlocked.map((a, i) => (
+            <div key={a.id} className="unlock" style={{ "--i": i } as CSSProperties}>
+              <span className="unlock__icon">
+                <Icon name={a.icon} size="md" />
+              </span>
+              <span>
+                <span className="unlock__eyebrow">実績を達成</span>
+                <span className="unlock__name">{a.name}</span>
+                <span className="unlock__desc">{a.description}</span>
+              </span>
+            </div>
+          ))}
+        </section>
+      )}
+
       <Explanation answer={overlay.answer} />
 
-      <div className="overlay__actions">
+      <div className="overlay__actions overlay__actions--sticky">
         {problem.nextId ? (
           <DotLinkAdapter variant="primary">
             <Link href={`/problem/${problem.nextId}`} autoFocus>
@@ -214,6 +272,39 @@ function Correct({
       </div>
       <OverlayNav gradeHref={gradeHref} />
     </div>
+  );
+}
+
+/** 登頂の紙吹雪（ドットが山頂から弾ける） */
+const BURST = Array.from({ length: 28 }, (_, i) => {
+  const angle = (i / 28) * Math.PI * 2 + (i % 3) * 0.35;
+  const distance = 70 + ((i * 37) % 60);
+  return {
+    x: Math.round(Math.cos(angle) * distance * 1.6),
+    y: Math.round(Math.sin(angle) * distance - 30),
+    delay: (i % 7) * 40,
+    tone: i % 3,
+  };
+});
+
+function DotBurst() {
+  return (
+    <span className="burst" aria-hidden>
+      {BURST.map((d, i) => (
+        <span
+          key={i}
+          className="burst__dot"
+          data-tone={d.tone}
+          style={
+            {
+              "--x": `${d.x}px`,
+              "--y": `${d.y}px`,
+              "--delay": `${d.delay}ms`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </span>
   );
 }
 

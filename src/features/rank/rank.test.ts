@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextRank } from "./rank";
-import { nextTitle, titleFor, TITLES } from "./titles";
+import { nextTitle, titleFor, titleProgress, TITLES } from "./titles";
 
 describe("nextRank", () => {
   it("初登頂はその標高までジャンプする", () => {
@@ -51,5 +51,14 @@ describe("titles", () => {
   it("次の称号までの残りを返す", () => {
     expect(nextTitle(500)).toEqual({ title: TITLES[1], remaining: 99 });
     expect(nextTitle(99999)).toBeNull();
+  });
+});
+
+describe("titleProgress", () => {
+  it("今の称号から次の称号までの割合を返す", () => {
+    expect(titleProgress(0)).toBe(0);
+    expect(titleProgress(599)).toBe(0);
+    expect(titleProgress(738)).toBeCloseTo(0.5, 2);
+    expect(titleProgress(99999)).toBe(1);
   });
 });

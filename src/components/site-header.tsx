@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { Icon, type IconName } from "dotterel-ui/icon";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { DIALECT_LABEL, type Dialect } from "@/features/engine/types";
-import { titleFor } from "@/features/rank/titles";
+import { titleFor, titleProgress } from "@/features/rank/titles";
 import { progressActions, useHydrated, useProgress } from "@/features/storage/progress-store";
 import type { Theme } from "@/features/storage/progress-schema";
 import { LogoMark } from "./dot-art";
@@ -18,6 +19,11 @@ const NAV = [
 ];
 
 const THEME_LABEL: Record<Theme, string> = { system: "自動", light: "昼", dark: "夜" };
+const THEME_ICON: Record<Theme, IconName> = {
+  system: "desktop",
+  light: "theme-light",
+  dark: "theme-dark",
+};
 const THEME_ORDER: Theme[] = ["system", "light", "dark"];
 
 export function SiteHeader() {
@@ -35,7 +41,8 @@ export function SiteHeader() {
     menuRef.current?.removeAttribute("open");
   }, [pathname]);
 
-  const title = titleFor(progress.rank);
+  const rank = hydrated ? progress.rank : 0;
+  const title = titleFor(rank);
   const nextTheme = THEME_ORDER[(THEME_ORDER.indexOf(progress.theme) + 1) % THEME_ORDER.length]!;
 
   return (
@@ -43,15 +50,20 @@ export function SiteHeader() {
       <div className="site-header__inner">
         <Link href="/" className="site-logo" aria-label="SQL Climber ホーム">
           <LogoMark size={22} />
-          <span className="site-logo__text">SQL CLIMBER</span>
+          <span className="site-logo__text">
+            SQL <span className="site-logo__accent">CLIMBER</span>
+          </span>
         </Link>
 
         <Link href="/mypage" className="rank-chip" title={`登山家ランク: ${title.name}`}>
           <span className="rank-chip__label">ランク</span>
           <span className="rank-chip__value">
-            <span className="num">{(hydrated ? progress.rank : 0).toLocaleString("ja-JP")} m</span>
+            <span className="num">{rank.toLocaleString("ja-JP")} m</span>
           </span>
-          <span className="rank-chip__title">{hydrated ? title.name : "登山口"}</span>
+          <span className="rank-chip__title">{title.name}</span>
+          <span className="rank-chip__meter" aria-hidden>
+            <span style={{ inlineSize: `${titleProgress(rank) * 100}%` }} />
+          </span>
         </Link>
 
         <div className="site-header__controls">
@@ -63,9 +75,7 @@ export function SiteHeader() {
             aria-label={`表示テーマ: ${THEME_LABEL[progress.theme]}（押すと${THEME_LABEL[nextTheme]}に切り替え）`}
             title={`テーマ: ${THEME_LABEL[progress.theme]}`}
           >
-            <span aria-hidden className="theme-glyph">
-              {THEME_LABEL[progress.theme]}
-            </span>
+            <Icon name={THEME_ICON[progress.theme]} size="sm" />
           </button>
         </div>
 
