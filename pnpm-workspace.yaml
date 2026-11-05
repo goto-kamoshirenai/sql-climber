@@ -2,3 +2,7 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
   sharp: true
+
+# 開発ツール (eslint-config-next → typescript-eslint) の奥にある脆弱な版を引き上げる。上流が minimatch 10 系のままのため
+overrides:
+  minimatch@>=7.0.0 <11.0.1: ">=11.0.1"
